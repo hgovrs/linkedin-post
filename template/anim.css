@@ -26,7 +26,7 @@ html,body{background:var(--bg);margin:0}
 .g-title small{display:block;margin-top:6px;font-size:23px;color:var(--muted);font-weight:500;letter-spacing:-.005em}
 .g-stage{left:64px;right:64px;top:246px;height:862px}
 .scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:safe center}
-.s-hook{justify-content:flex-start}
+.s-hook{top:-116px;justify-content:center;padding-bottom:56px}  /* the intro uses the title's room: the title appears with scene 2 */
 
 .g-bottom{left:64px;right:64px;top:1128px;height:150px;display:flex;gap:22px}
 .g-timeline{flex:1;padding:22px 30px 18px;display:flex;flex-direction:column;justify-content:space-between}
@@ -51,37 +51,19 @@ html,body{background:var(--bg);margin:0}
 .scene .lead{margin-top:20px;font-size:35px}
 .scene mark{background-image:linear-gradient(180deg,transparent 58%,rgba(var(--hl-rgb),.45) 58%,rgba(var(--hl-rgb),.45) 92%,transparent 92%);background-color:transparent;background-repeat:no-repeat;background-size:100% 100%}
 
-/* hook */
-.s-hook .h{margin-top:6px;font-size:112px;line-height:.98}
-.s-hook .h em{font-size:1.14em}
-.s-hook .hk-q{margin-top:20px;font-size:52px;font-weight:600;line-height:1.12;color:var(--text-2);letter-spacing:-.03em;text-wrap:balance}
-.hero{position:relative;margin-top:38px;flex:1}
-.hero .browser{position:relative;left:auto;right:auto;top:auto;margin:0 20px}
-.hero .b-body{padding:22px 30px 24px}
-.hero .item{margin-bottom:10px}
-.hero .sticker{right:-14px;top:78px}
-.hero .cursor{position:absolute;width:58px;height:58px;z-index:5;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
-.hero .ripple{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;border:4px solid var(--hl);z-index:4;opacity:0}
-.hero .terminal{margin:0 20px;border-radius:24px;overflow:hidden;background:#120B1C;border:1.5px solid var(--line-strong);box-shadow:0 40px 90px rgba(6,2,14,.65)}
-.terminal .t-bar{height:54px;display:flex;align-items:center;gap:16px;padding:0 22px;background:var(--surface);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:20px;color:var(--muted)}
-.terminal .t-body{padding:26px 30px 30px;font-family:var(--mono);font-size:29px;line-height:1.5;color:var(--text-2)}
-.terminal .t-body .cmd{color:var(--text)}.terminal .t-body .cmd::before{content:"$ ";color:var(--mint)}
-.hero .rcpt.solo{width:640px;margin:14px auto 0}
-.hero .rcpt.solo .r-row{height:84px;font-size:34px}.hero .rcpt.solo .r-head{height:70px;font-size:24px}.hero .rcpt.solo .r-total{height:92px;font-size:30px}
-.hero .rcpt.solo ~ .sticker{right:-10px;top:64px}
-/* versus (comparison editions): GitHub Copilot app and the Claude product face off on the cover */
-.hero .versus{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:124px;margin-top:10px}
-.vs-tile{display:flex;flex-direction:column;gap:20px;padding:32px 32px 30px;border-radius:30px;background:var(--surface);border:2px solid var(--line-strong);box-shadow:0 40px 90px rgba(6,2,14,.6)}
-.vs-tile.us{border-color:rgba(var(--mint-rgb),.6);box-shadow:0 0 0 6px rgba(var(--mint-rgb),.08),0 40px 90px rgba(6,2,14,.6)}
-.vs-ic{width:70px;height:70px;border-radius:20px;display:grid;place-items:center;background:rgba(var(--violet-rgb),.24);color:var(--violet-2)}
-.vs-tile.us .vs-ic{background:rgba(var(--mint-rgb),.16);color:var(--mint)}
-.vs-ic .ic{width:38px;height:38px}
-.vs-name{font-size:52px;font-weight:700;letter-spacing:-.035em;line-height:1.02}
-.vs-row{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding-top:20px;border-top:2px dashed var(--line-strong)}
-.vs-k{font-family:var(--mono);font-size:20px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.vs-chip{font-family:var(--mono);font-size:30px;font-weight:500;white-space:nowrap;padding:6px 16px;border-radius:12px;border:2.5px solid var(--line-strong);color:var(--text)}
-.vs-tile.us .vs-chip{border-color:var(--mint)}
-.hero .versus .sticker.vs{left:50%;top:50%;right:auto;margin:-68px 0 0 -68px;font-size:72px;padding:0 6px 12px 0}
+/* hook: the intro, a teaser that makes people stay for scene 2 */
+.hk-kicker{display:flex;align-items:center;gap:16px;font-family:var(--mono);font-size:26px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);white-space:nowrap}
+.hk-kicker .dot{width:14px;height:14px;flex:none;border-radius:50%;background:var(--mint);box-shadow:0 0 0 7px rgba(var(--mint-rgb),.18)}
+.shout{margin-top:30px;font-size:180px;font-weight:700;line-height:.92;letter-spacing:-.05em;text-transform:uppercase}
+.shout .ln{display:block;white-space:nowrap;transform-origin:0 62%}
+.shout .lt{display:inline-block}
+.shout em{font-family:var(--serif);font-style:italic;font-weight:400;text-transform:none;color:var(--mint);letter-spacing:-.015em;font-size:1.1em}
+.hk-row{position:relative;margin-top:60px;padding-right:186px;min-height:150px;display:flex;align-items:center}
+.hk-tease{font-size:60px;font-weight:600;line-height:1.16;letter-spacing:-.03em;color:var(--text-2);text-wrap:balance}
+.dots3{display:inline-flex;gap:12px;margin-left:18px;vertical-align:.12em}
+.dots3 i{width:16px;height:16px;border-radius:50%;background:var(--hl)}
+.s-hook .sticker.next{right:0;top:50%;width:150px;height:150px;margin-top:-75px;padding:0}
+.s-hook .sticker.next .ic{width:76px;height:76px}
 
 /* new */
 .chips{margin-top:28px;display:flex;flex-wrap:wrap;gap:14px}

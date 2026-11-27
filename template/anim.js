@@ -1,10 +1,11 @@
 // Agent Field Notes · animated edition (GIF, 1080 × 1350).
 // AFN.build(spec) lays out the five scenes and their choreography; AFN.seek(ms) draws any instant.
-// Frame 0 is a finished hook (it doubles as the thumbnail) and the loop ends by rebuilding it.
+// Scene 1 is a teaser: a huge shout, a tease that leads into scene 2 and a "wait for it" beat. Frame 0 is the
+// finished teaser (it doubles as the thumbnail) and the loop ends by rebuilding it.
 (() => {
   const SCENES = ["hook", "new", "setup", "try", "check"];
-  const STEP_LABELS = ["The hook", "What’s new", "Set up", "Try it", "What I’d check"];
-  const TL_NAMES = ["Hook", "New", "Setup", "Try", "Check"];
+  const STEP_LABELS = ["Wait for it", "What’s new", "Set up", "Try it", "What I’d check"];
+  const TL_NAMES = ["Intro", "New", "Setup", "Try", "Check"];
   const ROW_ICONS = new Set(["mug", "notebook", "i-doc", "i-box", "i-user", "i-key", "i-chart", "i-shield", "i-card", "i-bug", "i-clock", "i-lock", "i-chat", "i-cart", "i-globe", "i-desktop", "i-term", "i-spark", "i-puzzle"]);
 
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
@@ -60,23 +61,7 @@
   }
 
   // ---------- builders ----------
-  const lines = arr => arr.map(l => `<span class="ln">${inline(l)}</span>`).join("");
-  function heroBrowser(h) {
-    const [host, ...rest] = String(h.url || "localhost:3000").split("/");
-    const rows = (h.rows || []).map((r, i) => `<div class="item"><div class="thumb ${i % 2 ? "t-pink" : "t-mint"}">${rowIcon(r.icon) || icon("i-box")}</div>
-        <div class="meta"><b>${esc(r.name)}</b><span>${esc(r.detail || "")}</span></div><div class="price">${esc(r.value || "")}</div></div>`).join("");
-    const foot = h.footer ? `<div class="subtotal"><span>${esc(h.footer[0])}</span><b>${esc(h.footer[1])}</b></div>` : "";
-    return `<div class="browser">
-      <div class="b-bar"><div class="dots"><i></i><i></i><i></i></div><div class="b-tab">${icon("i-cart")}${esc(h.tab || "Demo")}</div></div>
-      <div class="b-nav"><span class="nav-btn">${icon("i-left")}</span><span class="nav-btn">${icon("i-right")}</span>
-        <span class="nav-btn hot">${icon("i-refresh", "spin")}</span><div class="url">${esc(host)}<span class="path">${rest.length ? "/" + esc(rest.join("/")) : ""}</span></div></div>
-      <div class="b-body"><div class="cart-head">${icon("i-cart")}${esc(h.heading || "")}${h.badge ? `<span class="badge">${esc(h.badge)}</span>` : ""}</div>${rows}${foot}</div>
-    </div><div class="sticker">?</div><span class="ripple"></span><svg class="cursor"><use href="#i-cursor"/></svg>`;
-  }
-  function heroTerminal(h) {
-    const body = (h.lines || []).map((l, i) => `<div class="${i === 0 ? "cmd" : "out"}">${esc(l)}</div>`).join("");
-    return `<div class="terminal"><div class="t-bar"><div class="dots"><i></i><i></i><i></i></div>${esc(h.title || "terminal")}</div><div class="t-body">${body}</div></div><div class="sticker">?</div>`;
-  }
+  const shoutLines = arr => arr.map(l => `<span class="ln"><span class="lt">${inline(l)}</span></span>`).join("");
   function receipt(side, cls, extra = "") {
     const rows = side.rows.map(r => `<div class="r-row ${r.mark === "gone" ? "gone" : ""}">${rowIcon(r.icon)}<span class="nm"><span class="nm-t">${esc(r.name)}${r.mark === "gone" ? '<i class="strike"></i>' : ""}</span></span>
         ${r.mark === "gone" ? `<span class="miss">${esc(r.value)}</span>` : `<span class="q ${r.mark === "flag" || r.mark === "edge" ? r.mark : ""}">${esc(r.value)}</span>`}</div>`).join("");
@@ -92,13 +77,6 @@
         rows: rows.map(r => ({icon: r.icon, name: r.name, value: r.copilot, mark: r.edge ? "edge" : undefined}))},
       possible: {label: c.with, icon: c.with_icon || "i-term", total: total ? [total.name, total.claude] : null,
         rows: rows.map(r => ({icon: r.icon, name: r.name, value: r.claude}))}};
-  }
-  function heroVersus(c) {
-    const r = (c.rows || []).find(x => x.edge) || (c.rows || [])[0] || {};
-    const two = s => { const t = plain(s).trim(), i = t.indexOf(" "); return i < 0 ? esc(t) : `${esc(t.slice(0, i))}<br>${esc(t.slice(i + 1))}`; };
-    const tile = (cls, ic, name, value) => `<div class="vs-tile ${cls}"><span class="vs-ic">${icon(ic)}</span><b class="vs-name">${two(name)}</b>
-      <span class="vs-row"><span class="vs-k">${esc(r.name || "")}</span><span class="vs-chip">${esc(value || "")}</span></span></div>`;
-    return `<div class="versus">${tile("us", "i-desktop", "GitHub Copilot app", r.copilot)}${tile("them", ROW_ICONS.has(c.with_icon) ? c.with_icon : "i-term", c.with, r.claude)}<div class="sticker vs">vs</div></div>`;
   }
   function paper(node) {
     node.querySelector(".paper")?.remove();
@@ -138,13 +116,12 @@
       <footer class="g-foot"><span class="src">${sources}</span><span class="brand"><svg class="ic"><use href="#i-receipt"/></svg>agent field notes</span></footer>`;
     const stage = root.querySelector("#stage");
     const hk = spec.hook, nw = spec.new, su = spec.setup, tr = spec.try, ck = cmp ? fromCompare(cmp) : spec.check;
-    const hero = cmp ? {type: "versus"} : hk.hero || {type: "receipt"};
-    const heroHtml = hero.type === "versus" ? heroVersus(cmp) : hero.type === "browser" ? heroBrowser(hero)
-      : hero.type === "terminal" ? heroTerminal(hero) : receipt(ck.expected, "ok", "solo") + `<div class="sticker">?</div>`;
+    const tease = String(hk.tease ?? hk.question ?? "").replace(/\s*(…|\.{3})\s*$/, "");  // the dots are drawn and animated
     const illus = cmp ? `Per both products’ docs${src2 && src2.checked ? ` · ${esc(src2.checked)}` : ""}` : "Illustration / not an observed result.";
     const flowNode = f => `<div class="node card"><span class="n-ic c-violet">${rowIcon(f.icon) || icon("i-desktop")}</span><div><b>${esc(f.name)}</b><small>${esc(f.sub || "")}</small></div></div>`;
     stage.innerHTML = `
-      <div class="scene s-hook"><h2 class="h">${lines(hk.lines)}</h2><p class="hk-q">${inline(hk.question)}</p><div class="hero">${heroHtml}</div></div>
+      <div class="scene s-hook"><p class="hk-kicker"><span class="dot"></span>${esc(spec.topic)}</p><h2 class="shout">${shoutLines(hk.lines)}</h2>
+        <div class="hk-row"><p class="hk-tease">${inline(tease)}<span class="dots3"><i></i><i></i><i></i></span></p><div class="sticker next">${icon("i-arrow")}</div></div></div>
       <div class="scene s-new"><p class="kicker">What’s new</p><h2 class="h">${inline(nw.headline)}</h2><p class="lead">${inline(nw.summary)}</p>
         <div class="chips">${nw.chips.map((c, i) => `<span class="chip mono ${i === 0 ? "mint" : ""}">${i === 0 ? '<span class="dot"></span>' : ""}${esc(c)}</span>`).join("")}</div>
         ${nw.flow ? `<div class="flow">${flowNode(nw.flow.from)}<div class="link"><i class="wire"></i><span>${esc(nw.flow.via)}</span></div>${flowNode(nw.flow.to)}</div>` : ""}</div>
@@ -163,8 +140,13 @@
       'italic 400 30px "Instrument Serif"', '400 30px "DM Mono"', '500 30px "DM Mono"'].map(f => document.fonts.load(f)));
     await document.fonts.ready;
 
+    // The shout: one size for all its lines, as big as the widest line allows (100 to 180 px).
+    const shout = stage.querySelector(".shout"), shoutText = [...shout.querySelectorAll(".lt")];
+    const widest = () => Math.max(...shoutText.map(x => x.getBoundingClientRect().width));
+    for (let px = 180; px > 100 && widest() > shout.clientWidth; px -= 4) shout.style.fontSize = `${px - 4}px`;
+
     // Receipt names stay on one line: long ones shrink (to 76% at most), equally across both receipts.
-    for (const group of stage.querySelectorAll(".compare, .rcpt.solo")) {
+    for (const group of stage.querySelectorAll(".compare")) {
       const names = [...group.querySelectorAll(".r-row .nm")];
       const over = () => names.some(nm => nm.firstElementChild.offsetWidth > nm.clientWidth + 1);
       const base = names.length ? parseFloat(getComputedStyle(names[0]).fontSize) : 0;
@@ -196,17 +178,6 @@
     mid.style.gridTemplateRows = `64px repeat(${nRows}, 72px) 80px`;
     stage.querySelectorAll(".rcpt").forEach(paper);
 
-    // Pointer on the refresh button.
-    const heroEl = stage.querySelector(".hero"), hot = heroEl.querySelector(".nav-btn.hot");
-    const cursor = heroEl.querySelector(".cursor"), ripple = heroEl.querySelector(".ripple");
-    if (hot && cursor) {
-      const zh = parseFloat(stage.querySelector(".s-hook").style.zoom || 1);
-      const hb = heroEl.getBoundingClientRect(), bb = hot.getBoundingClientRect();
-      const cx = (bb.left - hb.left + bb.width * .5) / zh, cy = (bb.top - hb.top + bb.height * .5) / zh;
-      cursor.style.left = `${cx - 6}px`; cursor.style.top = `${cy - 4}px`;
-      ripple.style.left = `${cx}px`; ripple.style.top = `${cy}px`;
-    }
-
     // ---------- choreography ----------
     const IN = 380, OUT = 320;
     const [sHook, sNew, sSetup, sTry, sCheck] = sceneEls;
@@ -215,7 +186,7 @@
     // sentences, LABEL of that weight for chips, cards and receipts), and at least HOLD after its last element
     // appears. Holds cost nothing in the GIF: identical frames merge into one long frame.
     const READ_CPS = 22, LABEL = .35, LEAD = 1000, HOLD = 3000, MAX_SCENE = 12500;
-    const BODY = ".h, .hk-q, .lead, .steps, .note, .prompt, .ask, .take", LABELS = ".chips, .flow, .hero, .illus, .compare";
+    const BODY = ".shout, .hk-tease, .h, .lead, .steps, .note, .prompt, .ask, .take", LABELS = ".hk-kicker, .chips, .flow, .illus, .compare";
     const textLen = (sc, sel) => qa(sc, sel).reduce((n, el) => n + el.textContent.replace(/\s+/g, " ").trim().length, 0);
     const readEnd = (sc, start, shown) => Math.round(Math.max(shown + HOLD, Math.min(start + MAX_SCENE,
       start + LEAD + (textLen(sc, BODY) + LABEL * textLen(sc, LABELS)) / READ_CPS * 1000)));
@@ -227,27 +198,26 @@
     const starts = [0];
     let t = 0;
 
-    // 1 · hook (complete at t = 0)
-    const hookEls = {lines: qa(sHook, ".h .ln"), q: q(sHook, ".hk-q"), hero: q(sHook, ".hero"), sticker: q(sHook, ".sticker")};
-    set(sHook, 0, {o: 1, y: 0});
-    hookEls.lines.forEach(l => set(l, 0, {o: 1, y: 0}));
-    set(hookEls.q, 0, {o: 1, y: 0}); set(hookEls.hero, 0, {o: 1, y: 0}); qa(sHook, "mark").forEach(m => set(m, 0, {mk: 100}));
-    if (hookEls.sticker) set(hookEls.sticker, 0, {s: 1, o: 1, r: 12});
-    const spin = q(sHook, ".spin"), rows = qa(sHook, ".item, .r-row, .t-body > div, .vs-chip"), badge = q(sHook, ".badge");
-    qa(sHook, ".vs-tile").forEach((tile, i) => {
-      const dx = i ? 34 : -34;
-      set(tile, 0, {x: 0}); tw(tile, 1150, 300, {x: [0, dx]}, "inout"); tw(tile, 2200, 560, {x: [dx, 0]}, "back");
-    });
-    if (cursor) {
-      set(cursor, 0, {x: 0, y: 0, s: 1, o: 1});
-      tw(cursor, 1080, 140, {s: [1, .82]}, "inout"); tw(cursor, 1220, 200, {s: [.82, 1]});
-      set(ripple, 0, {o: 0, s: .3}); tw(ripple, 1150, 520, {o: [.95, 0], s: [.3, 1.5]});
-      hooks.push(tt => { if (spin) spin.style.transform = tt > 1150 && tt < 2300 ? `rotate(${(tt - 1150) / 1150 * 720}deg)` : ""; });
-    }
-    rows.forEach((r, i) => { set(r, 0, {o: 1}); tw(r, 1250 + i * 40, 180, {o: [1, .2]}); tw(r, 2150 + i * 110, 260, {o: [.2, 1]}); });
-    if (badge) { set(badge, 0, {s: 1}); tw(badge, 2450, 180, {s: [1, 1.35]}, "out"); tw(badge, 2630, 260, {s: [1.35, 1]}, "back"); }
-    if (hookEls.sticker) { tw(hookEls.sticker, 1150, 160, {s: [1, 0], o: [1, 0]}, "in"); tw(hookEls.sticker, 2750, 420, {s: [0, 1], o: [0, 1], r: [-30, 12]}, "back"); }
-    t = readEnd(sHook, 0, 3200); leave(sHook, t - OUT);
+    // 1 · hook: the teaser, complete at t = 0 (the thumbnail). Each line of the shout lands on a beat, the arrow
+    // kicks, the dots count "wait for it" twice, and the scene zooms through into scene 2.
+    const hookEls = {kicker: q(sHook, ".hk-kicker"), lines: qa(sHook, ".shout .ln"), row: q(sHook, ".hk-row"),
+      dots: qa(sHook, ".dots3 i"), next: q(sHook, ".sticker.next")};
+    set(sHook, 0, {o: 1, y: 0, s: 1});
+    [hookEls.kicker, hookEls.row].forEach(el => set(el, 0, {o: 1, y: 0}));
+    hookEls.lines.forEach(l => set(l, 0, {o: 1, s: 1}));
+    qa(sHook, "mark").forEach(m => set(m, 0, {mk: 100}));
+    hookEls.dots.forEach(d => set(d, 0, {o: 1}));
+    set(hookEls.next, 0, {s: 1, r: 0, x: 0});
+    hookEls.lines.forEach((l, i) => { const at = 520 + i * 240; tw(l, at, 120, {s: [1, 1.1]}); tw(l, at + 120, 260, {s: [1.1, 1]}, "back"); });
+    const tBeat = 520 + hookEls.lines.length * 240;
+    tw(hookEls.next, tBeat, 180, {s: [1, 1.2], r: [0, -16]}); tw(hookEls.next, tBeat + 180, 340, {s: [1.2, 1], r: [-16, 0]}, "back");
+    const DOTS = [[1, .2, .2], [1, 1, .2], [1, 1, 1]], BEAT = 360;
+    let td = tBeat + 420;
+    for (let round = 0; round < 2; round++) for (const st of DOTS) { hookEls.dots.forEach((d, i) => set(d, td, {o: st[i]})); td += BEAT; }
+    hookEls.dots.forEach(d => set(d, td, {o: 1}));
+    tw(hookEls.next, td + 120, 160, {x: [0, 20]}); tw(hookEls.next, td + 280, 260, {x: [20, 0]}, "inout");
+    t = Math.max(td + 1100, readEnd(sHook, 0, 0));
+    tw(sHook, t - OUT, OUT, {o: [1, 0], s: [1, 1.12]}, "in");
 
     // 2 · what's new
     starts.push(t); enter(sNew, t);
@@ -288,7 +258,7 @@
     starts.push(t); enter(sTry, t);
     rise(q(sTry, ".kicker"), t + 100, 300, 16); rise(q(sTry, ".h"), t + 160, 420, 34);
     const card = q(sTry, ".prompt-wrap"); set(card, 0, {o: 0, s: .96}); tw(card, t + 380, 420, {o: [0, 1], s: [.96, 1]});
-    const chars = qa(sTry, ".ch"), CPS = Math.max(80, chars.length / 2.6), tType = t + 900, tTyped = tType + chars.length / CPS * 1000;
+    const chars = qa(sTry, ".ch"), CPS = Math.max(80, chars.length / 2), tType = t + 900, tTyped = tType + chars.length / CPS * 1000;
     const tryEnd = readEnd(sTry, t, tTyped);
     hooks.push(tt => {
       const n = Math.max(0, Math.min(chars.length, Math.floor((tt - tType) * CPS / 1000)));
@@ -318,18 +288,18 @@
     rise(q(sCheck, ".take"), tFx + 1500, 420, 18);
     t = readEnd(sCheck, t, tFx + 1500 + 420); leave(sCheck, t - OUT);
 
-    // loop: rebuild the hook so the last frame flows into frame 0
+    // loop: rebuild the teaser so the last frame flows into frame 0
     const L = t;
-    tw(sHook, L, 120, {o: [0, 1], y: [0, 0]});
+    tw(sHook, L, 120, {o: [0, 1], y: [0, 0], s: [1, 1]});
     const hide = (node, props) => node && set(node, L, props);
-    hookEls.lines.forEach((l, i) => { hide(l, {o: 0, y: 40}); tw(l, L + i * 110, 420, {o: [0, 1], y: [40, 0]}); });
-    hide(hookEls.q, {o: 0, y: 20}); tw(hookEls.q, L + 260, 380, {o: [0, 1], y: [20, 0]});
-    qa(sHook, "mark").forEach(m => { hide(m, {mk: 0}); tw(m, L + 420, 420, {mk: [0, 100]}, "inout"); });
-    hide(hookEls.hero, {o: 0, y: 50}); tw(hookEls.hero, L + 200, 460, {o: [0, 1], y: [50, 0]});
-    if (hookEls.sticker) { hide(hookEls.sticker, {s: 0, o: 0, r: -30}); tw(hookEls.sticker, L + 600, 380, {s: [0, 1], o: [0, 1], r: [-30, 12]}, "back"); }
-    if (cursor) { hide(cursor, {o: 0, x: 0, y: 0, s: 1}); tw(cursor, L + 600, 300, {o: [0, 1]}); }
-    rows.forEach(r => set(r, L, {o: 1}));
-    const total = L + 1120;
+    hide(hookEls.kicker, {o: 0, y: 14}); tw(hookEls.kicker, L + 60, 320, {o: [0, 1], y: [14, 0]});
+    hookEls.lines.forEach((l, i) => { hide(l, {o: 0, s: 1.32}); tw(l, L + 140 + i * 160, 320, {o: [0, 1], s: [1.32, 1]}); });
+    const tRow = L + 140 + hookEls.lines.length * 160 + 40;
+    hide(hookEls.row, {o: 0, y: 22}); tw(hookEls.row, tRow, 360, {o: [0, 1], y: [22, 0]});
+    qa(sHook, "mark").forEach(m => { hide(m, {mk: 0}); tw(m, tRow + 260, 440, {mk: [0, 100]}, "inout"); });
+    hookEls.dots.forEach(d => set(d, L, {o: 1}));
+    hide(hookEls.next, {s: 0, r: -40, x: 0}); tw(hookEls.next, tRow + 220, 400, {s: [0, 1], r: [-40, 0]}, "back");
+    const total = tRow + 760;
 
     // ---------- chrome: counters, step label, timeline ----------
     const H = {cnt: 28, lbl: 28, big: 118};
@@ -344,6 +314,8 @@
       tw(fill, st, 520, {w: [(i - 1) * 25, i * 25]}, "inout");
       tw(ons[i], st + 300, 320, {o: [0, 1], s: [.4, 1]}, "back");
     });
+    const gTitle = root.querySelector(".g-title");  // the title waits for scene 2: the teaser has the room
+    set(gTitle, 0, {o: 0, y: -18}); tw(gTitle, starts[1], 420, {o: [0, 1], y: [-18, 0]}); tw(gTitle, L - OUT, OUT, {o: [1, 0], y: [0, -18]}, "in");
     const last = ids.length - 1;
     rollTo("#cnt", H.cnt, last, 0, L); rollTo("#lbl", H.lbl, last, 0, L); rollTo("#big", H.big, last, 0, L);
     tw(fill, L, 520, {w: [100, 0]}, "inout");
@@ -409,8 +381,8 @@
         if (nm.firstElementChild.offsetWidth > nm.clientWidth + 1) problems.push(`${sc.id}: receipt row name "${nm.textContent.trim()}" is too long`);
       }
       for (const msg of covered(el)) problems.push(`${sc.id}: ${msg}`);
-      for (const tile of el.querySelectorAll(".vs-tile")) {
-        if (tile.scrollWidth > tile.clientWidth + 1) problems.push(`${sc.id}: cover card "${tile.querySelector(".vs-name").innerText.replace(/\s+/g, " ")}" is too wide (shorten compare.with or the first edge row)`);
+      for (const lt of el.querySelectorAll(".shout .lt")) {
+        if (lt.getBoundingClientRect().width > lt.parentElement.getBoundingClientRect().width + 1) problems.push(`${sc.id}: shout line "${lt.textContent}" is too long`);
       }
     }
     const t = document.querySelector(".g-title h1");

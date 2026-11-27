@@ -30,9 +30,11 @@ leave the reader with **one experiment they can try** and **one reason the resul
 
 - Informal and first person, like a developer who's genuinely excited about the Copilot app:
   contractions, short punchy sentences. Not corporate, not salesy, no hype words.
-- Hooks stop the scroll and play on the switch and the rivalry, in the spirit of the author's
-  lines: “Done with Claude Code? It's Copilot's turn.”, “Is Claude Code really all that?”,
-  “I switched from Claude to Copilot and noticed the difference.” A fresh one every day.
+- The first scene is a teaser that makes people stay: a huge shout in capitals that plays on the
+  switch and the rivalry, in the spirit of the author's lines (“Claude Code or Copilot? Now Copilot
+  has this:”, “Done with Claude Code? It's Copilot's turn.”, “Is Claude Code really all that?”,
+  “The Copilot app is on fire now: your team actually works together.”), plus a tease that ties it
+  to the post's change without the payoff. A fresh one every day.
 - The author really switched from Claude to Copilot; first-person lines about it are fine, invented
   specifics (time saved, numbers) are not. Nobody ran the edition's test: never “Here's what I found”.
 - Signature: **“Wait, but…”**, here “Wait, but how does Claude Code do it?”, with the yellow marker.
@@ -41,7 +43,8 @@ leave the reader with **one experiment they can try** and **one reason the resul
 ## Format
 
 - One looping animated GIF per edition, 1080 × 1350 (4:5), drawn from `issues/NNN-slug/spec.json`
-  in five scenes: the hook (cover: GitHub Copilot app vs Claude Code) → what's new → set up →
+  in five scenes: the teaser (huge shout, tease, “wait for it” dots, an arrow; it zooms through into
+  scene 2, where the title appears) → what's new → set up →
   try this prompt → how it compares (both products side by side, labelled “Per both products' docs”
   with the date they were read). Each scene stays as long as its text takes to read (about 50 seconds
   in total; pauses cost no frames), ≤ 250 frames and < 8 MB (LinkedIn limits).

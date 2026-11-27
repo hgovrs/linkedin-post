@@ -43,7 +43,7 @@ def system_prompt():
     example = json.loads((HERE / "issues/001-the-refresh-test/spec.json").read_text())
     for k in ("issue", "source", "check"):
         example.pop(k, None)
-    example["hook"].pop("hero", None)
+    example["hook"] = {"lines": ["Two items.", "One *refresh.*"], "tease": "Now the Copilot app can ==test your web app== in Chrome"}
     return (HERE / "prompts/writer.md").read_text().replace("{EXAMPLE_SPEC}", json.dumps(example, ensure_ascii=False, indent=1))
 
 
@@ -112,12 +112,14 @@ def validate(reply, candidates, covered, docs):
         lim("title", s.get("title"), 24)
         lim("topic", s.get("topic"), 40)
         hk = s["hook"]
-        if not isinstance(hk.get("lines"), list) or len(hk["lines"]) != 2:
-            p.append("hook.lines must have exactly 2 lines")
-        else:
-            for i, l in enumerate(hk["lines"]):
-                lim(f"hook.lines[{i}]", l, 14)
-        lim("hook.question", hk.get("question"), 64)
+        shout = hk.get("lines") if isinstance(hk.get("lines"), list) else []
+        if not 2 <= len(shout) <= 3:
+            p.append("hook.lines: the shout needs 2 or 3 lines")
+        for i, l in enumerate(shout):
+            lim(f"hook.lines[{i}]", l, 12)
+        lim("hook.tease", hk.get("tease"), 56)
+        if re.search(r"(…|\.{2,})\s*$", plain(hk.get("tease", ""))):
+            p.append("hook.tease: no trailing dots, the template animates them")
         nw = s["new"]
         lim("new.headline", nw.get("headline"), 32); lim("new.summary", nw.get("summary"), 100)
         chips = nw.get("chips") or []

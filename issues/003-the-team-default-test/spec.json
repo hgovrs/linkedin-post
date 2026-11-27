@@ -3,13 +3,11 @@
   "topic": "GitHub Copilot · team plugins",
   "hook": {
     "lines": [
-      "Same plugins.",
-      "One *setup.*"
+      "Copilot app",
+      "got *serious*",
+      "for teams"
     ],
-    "question": "Does ==every teammate== really start with them?",
-    "hero": {
-      "type": "receipt"
-    }
+    "tease": "Now your team can start with ==the same plugins=="
   },
   "new": {
     "headline": "Share plugins with *your team.*",

@@ -205,7 +205,7 @@ def materialize(reply, cand, issue_no, today, docs):
     import claude_docs
     spec = reply["spec"]
     spec["issue"] = issue_no
-    spec["hook"].pop("hero", None)  # comparison editions always open with the versus cover
+    spec["hook"].pop("hero", None)  # the first scene is always the teaser
     published = datetime.strptime(cand["published"], "%Y-%m-%d")
     claude_url = claude_docs.public_url(claude_docs.canonical(reply["claude_url"]))
     spec["source"] = {"name": cand["source"], "date": published.strftime("%b %-d, %Y"), "url": reply["source_url"]}
