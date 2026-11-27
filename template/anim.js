@@ -79,9 +79,26 @@
   }
   function receipt(side, cls, extra = "") {
     const rows = side.rows.map(r => `<div class="r-row ${r.mark === "gone" ? "gone" : ""}">${rowIcon(r.icon)}<span class="nm"><span class="nm-t">${esc(r.name)}${r.mark === "gone" ? '<i class="strike"></i>' : ""}</span></span>
-        ${r.mark === "gone" ? `<span class="miss">${esc(r.value)}</span>` : `<span class="q ${r.mark === "flag" ? "flag" : ""}">${esc(r.value)}</span>`}</div>`).join("");
+        ${r.mark === "gone" ? `<span class="miss">${esc(r.value)}</span>` : `<span class="q ${r.mark === "flag" || r.mark === "edge" ? r.mark : ""}">${esc(r.value)}</span>`}</div>`).join("");
     const total = side.total ? `<div class="r-total"><span>${esc(side.total[0])}</span><b>${esc(side.total[1])}</b></div>` : "";
-    return `<div class="rcpt ${cls} ${extra}"><div class="r-head">${icon(cls === "ok" ? "i-check" : "i-alert")}${esc(side.label)}</div>${rows}${total}</div>`;
+    const head = side.icon && ROW_ICONS.has(side.icon) ? side.icon : cls === "ok" ? "i-check" : "i-alert";
+    return `<div class="rcpt ${cls} ${extra}"><div class="r-head">${icon(head)}${esc(side.label)}</div>${rows}${total}</div>`;
+  }
+  // Comparison editions: the last scene puts the GitHub Copilot app next to a Claude product, row by row.
+  function fromCompare(c) {
+    const rows = c.rows || [], total = c.total;
+    return {question: c.question, headline: c.headline, takeaway: c.takeaway,
+      expected: {label: "GitHub Copilot app", icon: "i-desktop", total: total ? [total.name, total.copilot] : null,
+        rows: rows.map(r => ({icon: r.icon, name: r.name, value: r.copilot, mark: r.edge ? "edge" : undefined}))},
+      possible: {label: c.with, icon: c.with_icon || "i-term", total: total ? [total.name, total.claude] : null,
+        rows: rows.map(r => ({icon: r.icon, name: r.name, value: r.claude}))}};
+  }
+  function heroVersus(c) {
+    const r = (c.rows || []).find(x => x.edge) || (c.rows || [])[0] || {};
+    const two = s => { const t = plain(s).trim(), i = t.indexOf(" "); return i < 0 ? esc(t) : `${esc(t.slice(0, i))}<br>${esc(t.slice(i + 1))}`; };
+    const tile = (cls, ic, name, value) => `<div class="vs-tile ${cls}"><span class="vs-ic">${icon(ic)}</span><b class="vs-name">${two(name)}</b>
+      <span class="vs-row"><span class="vs-k">${esc(r.name || "")}</span><span class="vs-chip">${esc(value || "")}</span></span></div>`;
+    return `<div class="versus">${tile("us", "i-desktop", "GitHub Copilot app", r.copilot)}${tile("them", ROW_ICONS.has(c.with_icon) ? c.with_icon : "i-term", c.with, r.claude)}<div class="sticker vs">vs</div></div>`;
   }
   function paper(node) {
     node.querySelector(".paper")?.remove();
@@ -98,24 +115,33 @@
     const root = document.getElementById("gif");
     if (!document.getElementById("afn-icons")) document.body.insertAdjacentHTML("afterbegin", window.FIELD_NOTES_ICONS.replace("<svg ", '<svg id="afn-icons" '));
     const n = String(spec.issue).padStart(3, "0");
-    const cnt = SCENES.map((_, i) => `<span>${pad(i + 1)}</span>`).join("");
+    const cmp = spec.compare, src2 = spec.compare_source;
+    const vs = cmp ? `Vs ${plain(cmp.with)}` : "";
+    const ids = cmp ? [...SCENES.slice(0, 4), "compare"] : SCENES;
+    const stepLabels = cmp ? [...STEP_LABELS.slice(0, 4), vs.length <= 15 ? vs : "How it compares"] : STEP_LABELS;
+    const tlNames = cmp ? [...TL_NAMES.slice(0, 4), "Compare"] : TL_NAMES;
+    const sources = cmp && src2 ? `Sources · ${esc(spec.source.name)} · ${esc(spec.source.date)} · ${esc(src2.name)}`
+      : `Source · ${esc(spec.source.name)} · ${esc(spec.source.date)}`;
+    const cnt = ids.map((_, i) => `<span>${pad(i + 1)}</span>`).join("");
     root.innerHTML = `
       <header class="g-top"><div class="g-tag"><span class="g-no">No. ${n}</span><span>Agent Field Notes</span></div>
-        <div class="g-count"><span class="win"><b class="roll" id="cnt">${cnt}</b></span><span>/ ${pad(SCENES.length)}</span></div></header>
+        <div class="g-count"><span class="win"><b class="roll" id="cnt">${cnt}</b></span><span>/ ${pad(ids.length)}</span></div></header>
       <div class="g-title"><span class="logo"><svg><use href="#i-receipt"/></svg></span><div><h1>${inline(spec.title)}</h1><small>${esc(spec.topic)}</small></div></div>
       <section class="g-stage" id="stage"></section>
       <div class="g-bottom">
         <div class="g-timeline card"><span class="label">Timeline</span><div class="tl"><i class="base"></i><i class="fill"></i>
-          ${TL_NAMES.map((t, i) => `<span class="stop" style="left:calc(14px + (100% - 28px) * ${i / (SCENES.length - 1)})"><i class="on"></i></span>`).join("")}
-          ${TL_NAMES.map((t, i) => `<span class="name" style="left:calc(14px + (100% - 28px) * ${i / (SCENES.length - 1)})">${t}</span>`).join("")}</div></div>
-        <div class="g-step"><span class="win lbl"><span class="roll" id="lbl">${STEP_LABELS.map(s => `<span>${s}</span>`).join("")}</span></span>
+          ${tlNames.map((t, i) => `<span class="stop" style="left:calc(14px + (100% - 28px) * ${i / (ids.length - 1)})"><i class="on"></i></span>`).join("")}
+          ${tlNames.map((t, i) => `<span class="name" style="left:calc(14px + (100% - 28px) * ${i / (ids.length - 1)})">${t}</span>`).join("")}</div></div>
+        <div class="g-step"><span class="win lbl"><span class="roll" id="lbl">${stepLabels.map(s => `<span>${esc(s)}</span>`).join("")}</span></span>
           <span class="win big"><span class="roll" id="big">${cnt}</span></span></div>
       </div>
-      <footer class="g-foot"><span>Source · ${esc(spec.source.name)} · ${esc(spec.source.date)}</span><span class="brand"><svg class="ic"><use href="#i-receipt"/></svg>agent field notes</span></footer>`;
+      <footer class="g-foot"><span class="src">${sources}</span><span class="brand"><svg class="ic"><use href="#i-receipt"/></svg>agent field notes</span></footer>`;
     const stage = root.querySelector("#stage");
-    const hk = spec.hook, nw = spec.new, su = spec.setup, tr = spec.try, ck = spec.check;
-    const hero = hk.hero || {type: "receipt"};
-    const heroHtml = hero.type === "browser" ? heroBrowser(hero) : hero.type === "terminal" ? heroTerminal(hero) : receipt(ck.expected, "ok", "solo") + `<div class="sticker">?</div>`;
+    const hk = spec.hook, nw = spec.new, su = spec.setup, tr = spec.try, ck = cmp ? fromCompare(cmp) : spec.check;
+    const hero = cmp ? {type: "versus"} : hk.hero || {type: "receipt"};
+    const heroHtml = hero.type === "versus" ? heroVersus(cmp) : hero.type === "browser" ? heroBrowser(hero)
+      : hero.type === "terminal" ? heroTerminal(hero) : receipt(ck.expected, "ok", "solo") + `<div class="sticker">?</div>`;
+    const illus = cmp ? `Per both products’ docs${src2 && src2.checked ? ` · ${esc(src2.checked)}` : ""}` : "Illustration / not an observed result.";
     const flowNode = f => `<div class="node card"><span class="n-ic c-violet">${rowIcon(f.icon) || icon("i-desktop")}</span><div><b>${esc(f.name)}</b><small>${esc(f.sub || "")}</small></div></div>`;
     stage.innerHTML = `
       <div class="scene s-hook"><h2 class="h">${lines(hk.lines)}</h2><p class="hk-q">${inline(hk.question)}</p><div class="hero">${heroHtml}</div></div>
@@ -128,9 +154,9 @@
       <div class="scene s-try"><p class="kicker">Here’s what I’d check</p><h2 class="h">${inline(tr.headline)}</h2>
         <div class="prompt-wrap"><div class="prompt-card"><div class="p-top"><span class="chip mono">Prompt</span>${(tr.chips || []).map(c => `<span class="chip mint">${icon("i-globe")}${esc(c)}</span>`).join("")}</div>
           <div class="prompt">${tr.prompt.split(/\n\s*\n/).map(p => `<p>${[...p.trim()].map(ch => `<span class="ch">${esc(ch)}</span>`).join("")}</p>`).join("")}</div></div></div></div>
-      <div class="scene s-check"><p class="ask">${inline(ck.question.includes("==") ? ck.question : `==${ck.question}==`)}</p>
-        <span class="illus">Illustration / not an observed result.</span>
-        <div class="compare">${receipt(ck.expected, "ok")}<div class="mid"></div>${receipt(ck.possible, "bad")}</div>
+      <div class="scene s-check${cmp ? " s-compare" : ""}"><p class="ask">${inline(ck.question.includes("==") ? ck.question : `==${ck.question}==`)}</p>
+        <span class="illus">${illus}</span>
+        <div class="compare">${receipt(ck.expected, "ok")}<div class="mid"></div>${receipt(ck.possible, cmp ? "alt" : "bad")}</div>
         <h2 class="h pay">${inline(ck.headline)}</h2><p class="take">${inline(ck.takeaway)}</p></div>`;
 
     await Promise.all(['400 30px "Instrument Sans"', '500 30px "Instrument Sans"', '600 30px "Instrument Sans"', '700 30px "Instrument Sans"',
@@ -151,6 +177,8 @@
     for (const sc of sceneEls) { let k = 1; while (!fits(sc) && k > .78) { k = Math.round((k - .02) * 100) / 100; sc.style.zoom = k; } }
     const title = root.querySelector(".g-title h1");
     for (let px = 56; title.scrollWidth > title.parentElement.clientWidth + 1 && px > 40; px -= 2) title.style.fontSize = px + "px";
+    const foot = root.querySelector(".g-foot"), src = foot.querySelector(".src");
+    for (let px = 18; foot.scrollWidth > foot.clientWidth + 1 && px > 13; px--) src.style.fontSize = px + "px";
 
     // Receipts: equal row heights, symbols column, paper edges.
     const mid = stage.querySelector(".s-check .mid");
@@ -159,7 +187,7 @@
     const syms = [];
     for (let i = 0; i < nRows; i++) {
       const a = ck.expected.rows[i], b = ck.possible.rows[i];
-      const same = a && b && plain(a.value) === plain(b.value) && !b.mark;
+      const same = a && b && plain(a.value).toLowerCase() === plain(b.value).toLowerCase() && !b.mark && !a.mark;
       syms.push(Object.assign(document.createElement("span"), {textContent: same ? "=" : "≠"}));
     }
     const tA = ck.expected.total, tB = ck.possible.total;
@@ -197,7 +225,11 @@
     hookEls.lines.forEach(l => set(l, 0, {o: 1, y: 0}));
     set(hookEls.q, 0, {o: 1, y: 0}); set(hookEls.hero, 0, {o: 1, y: 0}); qa(sHook, "mark").forEach(m => set(m, 0, {mk: 100}));
     if (hookEls.sticker) set(hookEls.sticker, 0, {s: 1, o: 1, r: 12});
-    const spin = q(sHook, ".spin"), rows = qa(sHook, ".item, .r-row, .t-body > div"), badge = q(sHook, ".badge");
+    const spin = q(sHook, ".spin"), rows = qa(sHook, ".item, .r-row, .t-body > div, .vs-chip"), badge = q(sHook, ".badge");
+    qa(sHook, ".vs-tile").forEach((tile, i) => {
+      const dx = i ? 34 : -34;
+      set(tile, 0, {x: 0}); tw(tile, 1150, 300, {x: [0, dx]}, "inout"); tw(tile, 2200, 560, {x: [dx, 0]}, "back");
+    });
     if (cursor) {
       set(cursor, 0, {x: 0, y: 0, s: 1, o: 1});
       tw(cursor, 1080, 140, {s: [1, .82]}, "inout"); tw(cursor, 1220, 200, {s: [.82, 1]});
@@ -271,7 +303,7 @@
     [ra, rb].forEach(r => rise(r.querySelector(".r-total"), tTot, 320, 10));
     syms.forEach((s, i) => pop(s, (i < nRows ? t + 1850 + i * 220 + 260 : tTot + 260), 420));
     let tFx = tTot + 600;
-    rb.querySelectorAll(".flag").forEach(f => { set(f, 0, {s: 1}); tw(f, tFx, 220, {s: [1, 1.22]}); tw(f, tFx + 220, 320, {s: [1.22, 1]}, "back"); });
+    sCheck.querySelectorAll(".flag, .edge").forEach(f => { set(f, 0, {s: 1}); tw(f, tFx, 220, {s: [1, 1.22]}); tw(f, tFx + 220, 320, {s: [1.22, 1]}, "back"); });
     rb.querySelectorAll(".strike").forEach(s => { set(s, 0, {sx: 0}); tw(s, tFx + 200, 380, {sx: [0, 1]}, "inout"); });
     rb.querySelectorAll(".miss").forEach(m => pop(m, tFx + 520, 380));
     rise(q(sCheck, ".pay"), tFx + 1100, 460, 30);
@@ -304,14 +336,14 @@
       tw(fill, st, 520, {w: [(i - 1) * 25, i * 25]}, "inout");
       tw(ons[i], st + 300, 320, {o: [0, 1], s: [.4, 1]}, "back");
     });
-    const last = SCENES.length - 1;
+    const last = ids.length - 1;
     rollTo("#cnt", H.cnt, last, 0, L); rollTo("#lbl", H.lbl, last, 0, L); rollTo("#big", H.big, last, 0, L);
     tw(fill, L, 520, {w: [100, 0]}, "inout");
     ons.forEach((o, i) => { if (i) tw(o, L, 300, {o: [1, 0]}); });
 
     for (const props of tracks.values()) for (const p in props) props[p].sort((a, b) => a.start - b.start);
     const settle = [...starts.slice(1).map(s => s - OUT - 20), L - OUT - 20];
-    return {total, fps: 12.5, scenes: SCENES.map((id, i) => ({id, start: starts[i], settled: settle[i]})), loop: L};
+    return {total, fps: 12.5, scenes: ids.map((id, i) => ({id, start: starts[i], settled: settle[i]})), loop: L};
   }
 
   // Floating pieces (the "?" sticker, absolutely positioned labels) must not cover any visible text.
@@ -369,6 +401,9 @@
         if (nm.firstElementChild.offsetWidth > nm.clientWidth + 1) problems.push(`${sc.id}: receipt row name "${nm.textContent.trim()}" is too long`);
       }
       for (const msg of covered(el)) problems.push(`${sc.id}: ${msg}`);
+      for (const tile of el.querySelectorAll(".vs-tile")) {
+        if (tile.scrollWidth > tile.clientWidth + 1) problems.push(`${sc.id}: cover card "${tile.querySelector(".vs-name").innerText.replace(/\s+/g, " ")}" is too wide (shorten compare.with or the first edge row)`);
+      }
     }
     const t = document.querySelector(".g-title h1");
     if (t.scrollWidth > t.parentElement.clientWidth + 1) problems.push("title too long");

@@ -6,7 +6,8 @@ before (any run after 09:30) or, at the latest, by a run before 09:30 on the day
 
   python3 daily.py plan      # Zernio key only: sync posts, retry failed ones, choose the next free 10:00 slot,
                              #   list scheduled posts whose template or text changed since they were rendered
-  python3 daily.py write     # Copilot only: pick a story, write the edition, render the GIF, review it, fix it
+  python3 daily.py write     # Copilot only: pick a Copilot app change, read Claude Code's docs on it, write the
+                             #   comparison, render the GIF, review it, fix it
   python3 daily.py render    # no secrets: render the edition to schedule and the posts to refresh
   python3 daily.py schedule  # Zernio key only: schedule the new post, upload refreshed GIFs and captions
   python3 daily.py run       # every phase in one process (local use)
@@ -33,7 +34,7 @@ STATE = HERE / "state.json"
 WORK = HERE / ".work"
 TZ = ZoneInfo("America/Sao_Paulo")
 POST_TIME, CUTOFF = time(10, 0), time(9, 30)
-MAX_WRITE_ATTEMPTS, MAX_RETRIES, MAX_TURNS = 3, 3, 5
+MAX_WRITE_ATTEMPTS, MAX_RETRIES, MAX_TURNS, MAX_RESEARCH = 3, 3, 5, 2
 SKIP_RECHECK = timedelta(hours=6)
 REFRESH_LEAD = timedelta(minutes=45)  # don't touch a post this close to its time
 RENDER_INPUTS = ("template", "fonts", "gif.py")
@@ -200,11 +201,16 @@ def render(issue_dir):
     return None, problems or [(out.stderr or out.stdout).strip()[-600:]]
 
 
-def materialize(reply, cand, issue_no, today):
+def materialize(reply, cand, issue_no, today, docs):
+    import claude_docs
     spec = reply["spec"]
     spec["issue"] = issue_no
+    spec["hook"].pop("hero", None)  # comparison editions always open with the versus cover
     published = datetime.strptime(cand["published"], "%Y-%m-%d")
+    claude_url = claude_docs.public_url(claude_docs.canonical(reply["claude_url"]))
     spec["source"] = {"name": cand["source"], "date": published.strftime("%b %-d, %Y"), "url": reply["source_url"]}
+    spec["compare_source"] = {"name": claude_docs.NAME, "url": claude_url,
+                              "checked": datetime.strptime(today, "%Y-%m-%d").strftime("%b %-d, %Y")}
     slug = f"{issue_no:03d}-{reply['slug']}"
     d = HERE / "issues" / slug
     if d.exists():
@@ -212,51 +218,70 @@ def materialize(reply, cand, issue_no, today):
     d.mkdir(parents=True)
     title = plain(spec["title"])
     (d / "spec.json").write_text(json.dumps(spec, indent=2, ensure_ascii=False) + "\n")
-    caption = reply["caption"].strip()
-    caption = re.sub(r"\n*Source:.*$", "", caption, flags=re.S).strip()
-    (d / "caption.txt").write_text(f"{caption}\n\nSource: {reply['source_url']}\n")
+    caption = re.sub(r"\n*Sources?:.*$", "", reply["caption"].strip(), flags=re.S).strip()
+    (d / "caption.txt").write_text(f"{caption}\n\nSources:\n{cand['source']}: {reply['source_url']}\n{claude_docs.NAME}: {claude_url}\n")
     meta = {"issue": issue_no, "slug": slug, "title": title, "document_title": f"Agent Field Notes No. {issue_no:03d} — {title}",
             "format": "gif", "created": today,
             "source": {"name": cand["source"], "title": cand["title"], "url": reply["source_url"], "published": cand["published"]},
+            "compare_source": {"name": claude_docs.NAME, "url": claude_url, "checked": today,
+                               "pages": [claude_docs.public_url(u) for u in docs]},
             "verified_facts": reply.get("facts", [])}
     (d / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
     return d, slug, title
 
 
-async def write_edition(payload, cands, covered, issue_no, today):
-    """Write → check → render → layout audit → review against the article and the rendered scenes, up to
-    MAX_TURNS times in the same writer session; every problem goes back to the writer."""
+async def write_edition(payload, cands, covered, issue_no, today, index):
+    """Research → write → check → render → layout audit → review against both sources and the rendered scenes.
+
+    The writer first asks for Claude Code pages (up to MAX_RESEARCH times), then gets up to MAX_TURNS tries at
+    the edition in the same session; every problem goes back to it."""
+    import claude_docs
     import writer
     by_id = {c["id"]: c for c in cands}
-    problems, reviews = [], []
+    known = {e["url"] for e in index}
+    docs, problems, reviews, research, turn = {}, [], [], 0, 0
     async with writer.Session() as s:
         message = json.dumps(payload, ensure_ascii=False)
-        for turn in range(1, MAX_TURNS + 1):
+        while turn < MAX_TURNS:
             raw = await s.ask(message)
-            print(f"turn {turn}: writer answered ({s.config})", flush=True)
             try:
                 reply = writer.parse(raw)
             except ValueError as exc:
-                problems = [f"invalid JSON: {exc}"]
-            else:
-                if reply.get("status") == "skip":
-                    return reply, None
-                problems = writer.validate(reply, cands, covered)
+                reply, problems = {}, [f"invalid JSON: {exc}"]
+            if reply.get("status") == "skip":
+                return reply, None
+            if reply.get("status") == "research" and research < MAX_RESEARCH:
+                research += 1
+                cand = by_id.get(reply.get("candidate")) or {}
+                terms = [reply.get("looking_for", ""), cand.get("title", ""), str(reply.get("anchor") or "").replace("-", " ")]
+                got, notes = claude_docs.fetch(reply.get("claude_pages"), known, docs, terms)
+                docs.update(got)
+                print(f"research {research} ({s.config}): candidate {reply.get('candidate')} #{reply.get('anchor') or ''} → "
+                      f"{[claude_docs.public_url(u) for u in got]} {notes or ''}", flush=True)
+                more = "" if research >= MAX_RESEARCH else ", or ask once more for up to 2 other pages if these don't cover it"
+                message = json.dumps({"claude_pages": [{"url": u, "text": t} for u, t in got.items()], "notes": notes,
+                                      "next": f"Now return the edition (status ok){more}."}, ensure_ascii=False)
+                continue
+            turn += 1
+            if reply.get("status") == "research":
+                problems = ["no more research: return the edition with the pages you already have"]
+            elif reply:
+                print(f"turn {turn}: writer answered ({s.config})", flush=True)
+                problems = writer.validate(reply, cands, covered, docs)
                 if not problems:
                     cand = by_id[reply["candidate"]]
-                    d, slug, title = materialize(reply, cand, issue_no, today)
+                    d, slug, title = materialize(reply, cand, issue_no, today, docs)
                     report, problems = await asyncio.to_thread(render, d)
                     if problems:
                         problems = [f"layout: {p} (shorten or rephrase that text)" for p in problems]
                     else:
-                        verdict, problems = await writer.review(cand, reply, d)
+                        verdict, problems = await writer.review(cand, reply, d, docs)
                         reviews.append({"turn": turn, **verdict})
                         work("review.json", reviews)
                         print(f"turn {turn}: review by {verdict.get('model')} {'passed' if not problems else f'found {len(problems)} problem(s)'}", flush=True)
                         if not problems:
-                            return reply, (d, slug, title, report, {"turns": turn, "reviews": len(reviews),
-                                                                    "writer_model": s.config,
-                                                                    "reviewer_model": verdict.get("model")})
+                            return reply, (d, slug, title, report, {"turns": turn, "research": research, "reviews": len(reviews),
+                                                                    "writer_model": s.config, "reviewer_model": verdict.get("model")})
                         problems = [f"review: {p}" for p in problems]
                     shutil.rmtree(d)
             print(f"turn {turn}: " + " | ".join(problems)[:1500], flush=True)
@@ -266,6 +291,7 @@ async def write_edition(payload, cands, covered, issue_no, today):
 
 
 def write(dry):
+    import claude_docs
     import sources
     import writer
     p = work("plan.json")
@@ -273,14 +299,18 @@ def write(dry):
         print("nothing to write"); return None
     state, t = load_state(), now()
     target = p["target"]
+    try:
+        index = claude_docs.index()
+    except Exception as exc:  # no comparison without Claude's docs: fail, the next run tries again
+        print(f"write failed: the Claude Code docs index is unavailable ({type(exc).__name__}: {exc})"); sys.exit(1)
     state["attempts"][target] = state["attempts"].get(target, 0) + 1
     save_state(state, dry)
     cands = work("candidates.json")
     covered = sources.covered(state)
     payload = {"today": t.date().isoformat(), "issue": p["issue"], "post_date": target, "covered": sorted(covered),
-               "candidates": cands}
+               "candidates": cands, "claude_index": index}
     try:
-        reply, made = writer.wrap_errors(write_edition(payload, cands, covered, p["issue"], t.date().isoformat()))
+        reply, made = writer.wrap_errors(write_edition(payload, cands, covered, p["issue"], t.date().isoformat(), index))
     except RuntimeError as exc:
         print(f"write failed: {exc}"); sys.exit(1)
     if made is None:
@@ -295,11 +325,13 @@ def write(dry):
     (d / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
     state["editions"].append({"issue": p["issue"], "slug": slug, "title": title, "status": "ready", "format": "gif",
                               "created": t.date().isoformat(), "source_url": reply["source_url"],
+                              "compare_url": meta["compare_source"]["url"],
                               "external_id": f"agent-field-notes-{p['issue']:03d}", "post_id": None, "scheduled_for": None})
     save_state(state, dry)
     p.update(action="schedule", issue_dir=f"issues/{slug}", gif=report)
     work("plan.json", p); output(action="schedule", issue_dir=f"issues/{slug}")
-    print(json.dumps({"written": slug, "title": title, "source": reply["source_url"], "gif": report}, indent=2, ensure_ascii=False))
+    print(json.dumps({"written": slug, "title": title, "source": reply["source_url"], "compare": meta["compare_source"]["url"],
+                      "gif": report, "review": review}, indent=2, ensure_ascii=False))
     return d
 
 

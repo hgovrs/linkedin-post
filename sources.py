@@ -1,7 +1,9 @@
 """Candidate stories for Agent Field Notes: English, dated, recent, not yet covered.
 
-Feeds are read in priority order (GitHub Changelog's Copilot label first). Each candidate carries the
-article text with its section headings and anchors, so the writer can quote it and cite a section.
+Theme: changes to the GitHub Copilot app (each edition compares one with Claude Code, see claude_docs.py).
+Feeds are read in priority order (GitHub Changelog's Copilot label first); only posts that mention the
+Copilot app are kept. Each candidate carries the article text with its section headings and anchors, so
+the writer can quote it and cite a section.
 """
 import html
 import re
@@ -13,8 +15,8 @@ import xml.etree.ElementTree as ET
 FEEDS = [
     ("GitHub Changelog", "https://github.blog/changelog/label/copilot/feed/"),
     ("GitHub Blog", "https://github.blog/ai-and-ml/github-copilot/feed/"),
-    ("Hugging Face Blog", "https://huggingface.co/blog/feed.xml"),
 ]
+FOCUS = re.compile(r"\bCopilot app\b")  # the theme; set to None to take every Copilot story
 UA = "Mozilla/5.0 (compatible; agent-field-notes/1.0; +https://github.com/hgovrs/linkedin-post)"
 END_MARKERS = ("Related Posts", "Related posts", "Subscribe to our developer newsletter", "Back to top",
                "More on ", "Upvote", "Sign up or log in to comment")
@@ -75,7 +77,7 @@ def covered(state):
     return {e.get("source_url", "") for e in state.get("editions", []) if e.get("source_url")}
 
 
-def candidates(state, days=10, limit=6, max_chars=9000):
+def candidates(state, days=30, limit=6, max_chars=30000):
     used = covered(state)
     used_pages = {u.split("#")[0] for u in used}
     since = datetime.now(timezone.utc) - timedelta(days=days)
@@ -96,6 +98,8 @@ def candidates(state, days=10, limit=6, max_chars=9000):
             text, sections = article(item["url"])
         except Exception as exc:
             errors.append(f"{item['url']}: {type(exc).__name__}")
+            continue
+        if FOCUS and not FOCUS.search(text):
             continue
         free_sections = [s for s in sections if f"{item['url']}#{s['anchor']}" not in used]
         if item["url"] in used_pages and not free_sections:

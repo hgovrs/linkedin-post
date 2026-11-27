@@ -2,9 +2,10 @@
 
 ![Agent Field Notes No. 001, The Refresh Test: an animated explainer](https://github.com/user-attachments/assets/a003c213-636a-4d3d-b894-fd73b7f07372)
 
-A daily LinkedIn series about useful AI news for developers (GitHub Copilot app first). Copilot
-writes each edition, a template draws it as an animated GIF, and Zernio schedules it for
-**10:00 America/Sao_Paulo**. Everything runs on GitHub Actions in this public repo, so it doesn't
+A daily LinkedIn series about useful AI news for developers. This week: each edition takes a change in
+the **GitHub Copilot app**, reads how **Claude Code** does the same thing in its docs, and shows where the
+Copilot app comes out ahead. Copilot writes each edition, a template draws it as an animated GIF, and
+Zernio schedules it for **10:00 America/Sao_Paulo**. Everything runs on GitHub Actions in this public repo, so it doesn't
 depend on any computer being on and standard runners cost nothing.
 
 Separate from Caramelingo: its own Zernio account, profile ("Agent Field Notes", ids in
@@ -19,14 +20,16 @@ The **Daily edition** workflow runs twice an hour (:07 and :37) from 06:07 to 20
    10:00 slot: today if it's before 09:30 and today is free, otherwise tomorrow. It also lists
    scheduled posts whose template, renderer or text changed since they were uploaded.
    Nothing to do → done in seconds.
-2. **write** (Copilot only): new stories from the GitHub Changelog (Copilot), GitHub Blog (Copilot)
-   and Hugging Face Blog. In up to 5 turns of one session:
-   - a Copilot session with no tools returns `spec.json`, the caption and verified facts;
-   - Python checks lengths, icons and that every quoted fact appears verbatim in the article;
+2. **write** (Copilot only): posts about the Copilot app from the GitHub Changelog (Copilot) and GitHub
+   Blog (Copilot), last 30 days. In one Copilot session with no tools:
+   - research: Copilot picks a change and asks for the matching pages of the Claude Code docs from their
+     index (`claude_docs.py`); the run downloads them (up to 2 rounds);
+   - Copilot returns `spec.json`, the caption and facts quoted from both sources;
+   - Python checks lengths, icons and that every quote appears verbatim in its source;
    - the GIF is rendered and audited (text outside the frame, clipped, too long, or covered by the sticker);
-   - a second, fresh Copilot session reviews the edition against the article and the five rendered
-     scenes (unsupported claims, honesty, prompt safety, visible layout defects);
-   - every problem goes back to the writer, which returns a corrected edition.
+   - a second, fresh Copilot session reviews the edition against both sources and an image of the five
+     rendered scenes (unsupported claims, unfair comparisons, honesty, prompt safety, layout);
+   - every problem goes back to the writer, which returns a corrected edition (up to 5 tries).
 
    At most 3 failed attempts per day; no qualifying story → skip, checked again after 6 hours.
 3. **render** (no secrets): `gif.py` → 1080×1350 GIF, ≤ 250 frames, < 8 MB, for the new edition and
@@ -72,7 +75,8 @@ python3 zernio.py accounts
 | --- | --- |
 | `daily.py` | Orchestrator: plan, write, render, schedule, run, ping |
 | `writer.py`, `prompts/writer.md`, `prompts/reviewer.md` | Isolated Copilot sessions, validation, writer and reviewer prompts |
-| `sources.py` | Feeds and article text |
+| `sources.py` | Feeds and article text (only Copilot app posts this week: `FOCUS`) |
+| `claude_docs.py` | Claude Code docs index and pages for the comparison |
 | `gif.py`, `template/anim.*` | Deterministic animation, frame capture and GIF encoding |
 | `zernio.py`, `zernio.json` | Zernio client for this project only |
 | `issues/NNN-slug/` | `spec.json`, `caption.txt`, `meta.json` (verified facts); `dist/` is generated |
