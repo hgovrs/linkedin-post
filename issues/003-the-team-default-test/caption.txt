@@ -1,0 +1,15 @@
+You set up the same plugins once. Then every teammate repeats the setup anyway.
+
+GitHub’s team customizations are now generally available for organization teams on Copilot Business and Copilot Enterprise. Team maintainers and organization owners can pick approved Agent Plugins as team defaults from the Customize Copilot tab of a team on github.com. They’re enabled by default for direct members in VS Code, the GitHub Copilot app and Copilot CLI.
+
+Wait, but does everyone on the team get them?
+
+The announcement says members of child teams don’t inherit them, and members can turn a team plugin off where policy permits. Enterprise and organization policies also take precedence. So “we set it up” and “everyone has it” may not be the same thing.
+
+Here’s what I’d check: from a direct member’s session, ask Copilot to list the enabled Agent Plugins and say which look like team defaults. Then repeat it from a child-team member. Read-only: no installs, no removals, no changes.
+
+The GIF walks through the setup and the exact prompt.
+
+#GitHubCopilot #DeveloperTools
+
+Source: https://github.blog/changelog/2026-11-18-customize-github-copilot-for-your-team

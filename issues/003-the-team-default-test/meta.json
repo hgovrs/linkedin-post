@@ -1,0 +1,48 @@
+{
+  "issue": 3,
+  "slug": "003-the-team-default-test",
+  "title": "The Team Default Test",
+  "document_title": "Agent Field Notes No. 003 — The Team Default Test",
+  "format": "gif",
+  "created": "2026-11-27",
+  "source": {
+    "name": "GitHub Changelog",
+    "title": "Customize GitHub Copilot for your team",
+    "url": "https://github.blog/changelog/2026-11-18-customize-github-copilot-for-your-team",
+    "published": "2026-11-18"
+  },
+  "verified_facts": [
+    {
+      "claim": "Team customizations are GA for organization teams",
+      "quote": "Team customizations are generally available for organization teams."
+    },
+    {
+      "claim": "Maintainers and owners select approved plugins as team defaults",
+      "quote": "Team maintainers and organization owners can select approved Agent Plugins as team defaults."
+    },
+    {
+      "claim": "Setup happens on the team's Customize Copilot tab on github.com",
+      "quote": "open your organization team on github.com and select the Customize Copilot tab"
+    },
+    {
+      "claim": "Marketplace plugins can be browsed and added to the team",
+      "quote": "Browse plugins from the marketplaces built into Copilot, your enterprise’s marketplaces, and any marketplaces the team adds."
+    },
+    {
+      "claim": "Defaults apply to direct members in VS Code, the app and CLI; child teams don't inherit",
+      "quote": "Selected plugins are enabled by default for the team’s direct members in VS Code, the GitHub Copilot app, and Copilot CLI. Members of child teams don’t inherit them."
+    },
+    {
+      "claim": "Members can turn a team plugin off where policy permits",
+      "quote": "Members can turn a team plugin off in their Copilot client where policy permits."
+    },
+    {
+      "claim": "Policies take precedence over team choices",
+      "quote": "Enterprise and organization policies take precedence over team choices."
+    },
+    {
+      "claim": "Available for Business and Enterprise",
+      "quote": "Team customizations are available for Copilot Business and Copilot Enterprise."
+    }
+  ]
+}

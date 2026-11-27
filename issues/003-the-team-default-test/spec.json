@@ -1,0 +1,102 @@
+{
+  "title": "The Team Default Test",
+  "topic": "GitHub Copilot · team plugins",
+  "hook": {
+    "lines": [
+      "Same plugins.",
+      "One *setup.*"
+    ],
+    "question": "Does ==every teammate== really start with them?",
+    "hero": {
+      "type": "receipt"
+    }
+  },
+  "new": {
+    "headline": "Share plugins with *your team.*",
+    "summary": "Maintainers pick approved Agent Plugins as team defaults on github.com.",
+    "chips": [
+      "Generally available",
+      "Announced Nov 18, 2026",
+      "Business, Enterprise"
+    ],
+    "flow": {
+      "from": {
+        "icon": "i-user",
+        "name": "Team maintainer",
+        "sub": "Customize Copilot tab"
+      },
+      "via": "Enabled by default",
+      "to": {
+        "icon": "i-desktop",
+        "name": "App, CLI, VS Code",
+        "sub": "direct members"
+      }
+    }
+  },
+  "setup": {
+    "headline": "Set up a *team default.*",
+    "steps": [
+      "As a maintainer or owner, open your team on github.com and select **Customize Copilot**.",
+      "Browse marketplace plugins and add the approved ones to the team.",
+      "Direct members get them in VS Code, GitHub Copilot app and CLI; child teams don’t."
+    ],
+    "note": "Policies still win; members can turn plugins off."
+  },
+  "try": {
+    "headline": "Try this *prompt.*",
+    "chips": [
+      "Agent Plugins"
+    ],
+    "prompt": "List the Agent Plugins enabled in this session.\n\nFor each one, say whether it looks like a team default or something I added myself, and what in the session tells you.\n\nOnly report what you can see. Don’t install, remove or change any plugin."
+  },
+  "check": {
+    "question": "Wait, but does everyone on the team get it?",
+    "headline": "Team default. *Not everyone.*",
+    "expected": {
+      "label": "Expected",
+      "rows": [
+        {
+          "icon": "i-user",
+          "name": "Direct member",
+          "value": "on"
+        },
+        {
+          "icon": "i-puzzle",
+          "name": "Child team",
+          "value": "off"
+        }
+      ],
+      "total": [
+        "Plugin on",
+        "1 of 2"
+      ]
+    },
+    "possible": {
+      "label": "Possible gap",
+      "rows": [
+        {
+          "icon": "i-user",
+          "name": "Direct member",
+          "value": "off",
+          "mark": "flag"
+        },
+        {
+          "icon": "i-puzzle",
+          "name": "Child team",
+          "value": "off"
+        }
+      ],
+      "total": [
+        "Plugin on",
+        "0 of 2"
+      ]
+    },
+    "takeaway": "**Check who actually has it.** Direct members get defaults, child teams don’t, and members or policy can switch plugins off."
+  },
+  "issue": 3,
+  "source": {
+    "name": "GitHub Changelog",
+    "date": "Nov 18, 2026",
+    "url": "https://github.blog/changelog/2026-11-18-customize-github-copilot-for-your-team"
+  }
+}
