@@ -55,34 +55,41 @@ jobs:
         run: python daily.py plan $DRY
 
       - name: Install dependencies
-        if: steps.plan.outputs.action == 'write' || steps.plan.outputs.action == 'schedule'
+        if: steps.plan.outputs.action == 'write' || steps.plan.outputs.action == 'schedule' || steps.plan.outputs.refresh == 'yes'
         run: python -m pip install --quiet -r requirements.txt
 
-      - name: Write with Copilot (no Zernio key)
+      # Copilot writes, the GIF is rendered and audited, a second Copilot session reviews facts and scenes
+      - name: Write and review with Copilot (no Zernio key)
         id: write
         if: steps.plan.outputs.action == 'write'
         env:
           COPILOT_GITHUB_TOKEN: ${{ github.token }}
         run: python daily.py write $DRY
 
-      - name: Render the GIF (no secrets)
-        if: steps.plan.outputs.action == 'schedule' || steps.write.outputs.action == 'schedule'
+      - name: Render GIFs (no secrets)
+        if: steps.plan.outputs.action == 'schedule' || steps.write.outputs.action == 'schedule' || steps.plan.outputs.refresh == 'yes'
         run: python daily.py render
 
+      # Schedules the new post and re-uploads scheduled posts whose template or text changed
       - name: Schedule on LinkedIn (Zernio key only)
-        if: steps.plan.outputs.action == 'schedule' || steps.write.outputs.action == 'schedule'
+        if: steps.plan.outputs.action == 'schedule' || steps.write.outputs.action == 'schedule' || steps.plan.outputs.refresh == 'yes'
         env:
           LINKEDIN_ZERNIO_API_KEY: ${{ secrets.LINKEDIN_ZERNIO_API_KEY }}
         run: python daily.py schedule $DRY
 
-      - name: Keep the GIF and stills
+      - name: Keep the GIFs, stills and review
         if: always() && hashFiles('issues/*/dist/*.gif') != ''
         uses: actions/upload-artifact@v4
         with:
           name: edition
+          include-hidden-files: true
           path: |
             issues/*/dist/*.gif
             issues/*/dist/*.png
+            issues/*/spec.json
+            issues/*/caption.txt
+            .work/plan.json
+            .work/review.json
           retention-days: 14
 
       - name: Hand the state to the save job

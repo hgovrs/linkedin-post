@@ -59,11 +59,11 @@ English, first person, 110–190 words: a concrete hook → what changed and who
 the “Wait, but…” question → what I'd check → one line saying the GIF walks through the setup and
 the prompt → `Source: <url>` (added automatically). No hashtag lists (0–3 relevant ones at most).
 
-## Accuracy checklist (before scheduling)
+## Accuracy checklist (the run checks all of it before scheduling)
 
-1. Every claim in the GIF is in the source; names, dates, settings paths and status match it
-   exactly. No generic steps the article doesn't state.
+1. Every claim in the GIF and caption is in the source; names, dates, settings paths and status
+   match it exactly. No generic steps the article doesn't state. (`prompts/reviewer.md`)
 2. `meta.json` lists the verified facts with verbatim quotes (`writer.py` checks them against
-   the article) and `gif.py` reports no layout problems.
-3. After a manual edit, look at `dist/cover.png` and `dist/scene-*.png`: nothing cramped, cut
-   off or unreadable on a phone.
+   the article).
+3. Nothing is cut off, outside the frame, covered or unreadable on a phone (`AFN.audit` in
+   `template/anim.js`, then the reviewer looks at the five rendered scenes).

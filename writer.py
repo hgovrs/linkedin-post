@@ -1,9 +1,10 @@
-"""Write an Agent Field Notes edition with GitHub Copilot (official SDK, no tools, no Zernio key).
+"""Write and review an Agent Field Notes edition with GitHub Copilot (official SDK, no tools, no Zernio key).
 
-The model only returns data (spec + caption + facts). Python checks it, the template draws it, and
-problems (bad quote, text too long, layout overflow) go back to the same session for a fix.
+The model only returns data (spec + caption + facts). Python checks it, the template draws it, a second
+session reviews facts and the rendered scenes, and every problem goes back to the writer for a fix.
 """
 import asyncio
+import base64
 import json
 import os
 import pathlib
@@ -178,10 +179,15 @@ def validate(reply, candidates, covered):
     return p
 
 
+def reviewer_prompt():
+    return (HERE / "prompts/reviewer.md").read_text()
+
+
 class Session:
     """One isolated Copilot session: no tools, no MCP, a throwaway working folder, GitHub auth only."""
 
-    def __init__(self):
+    def __init__(self, system=None):
+        self.system = system
         self.temp = tempfile.TemporaryDirectory(prefix="afn-writer-")
 
     async def __aenter__(self):
@@ -195,12 +201,12 @@ class Session:
             working_directory=temp, config_directory=temp, enable_config_discovery=False,
             tools={"available_tools": []}, skills={"enabled": False}, mcp={"servers": {}},
             permissions={"on_request": lambda *_: PermissionDecisionReject()},
-            system_message={"mode": "append", "content": system_prompt()})
+            system_message={"mode": "append", "content": self.system or system_prompt()})
         await self.session.__aenter__()
         return self
 
-    async def ask(self, text, timeout=300):
-        resp = await self.session.send_and_wait(text, timeout=timeout)
+    async def ask(self, text, timeout=300, attachments=None):
+        resp = await self.session.send_and_wait(text, timeout=timeout, attachments=attachments)
         if resp is None or not isinstance(resp.data, AssistantMessageData) or not isinstance(resp.data.content, str):
             raise RuntimeError("Copilot returned no text")
         return resp.data.content
@@ -211,6 +217,61 @@ class Session:
             await self.client.__aexit__(*exc)
         finally:
             self.temp.cleanup()
+
+
+def edition_text(reply):
+    out = []
+
+    def walk(v):
+        if isinstance(v, str):
+            out.append(plain(v))
+        elif isinstance(v, dict):
+            for x in v.values():
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    walk(reply.get("spec")); walk(reply.get("caption"))
+    return norm(" \n ".join(out))
+
+
+async def review(cand, reply, issue_dir):
+    """A fresh session checks the edition against the article and the rendered scenes.
+
+    Returns (report, problems). Fact, honesty and safety problems must quote words that really are in the
+    edition; the others are dropped as misreadings.
+    """
+    stills = sorted(pathlib.Path(issue_dir, "dist").glob("scene-*.png"))
+    attachments = [{"type": "blob", "data": base64.b64encode(p.read_bytes()).decode(), "mimeType": "image/png",
+                    "displayName": p.name} for p in stills]
+    payload = {"article": {k: cand[k] for k in ("title", "url", "published", "text")},
+               "edition": {"spec": reply["spec"], "caption": reply["caption"], "facts": reply.get("facts", [])},
+               "screenshots": [p.name for p in stills]}
+    report = None
+    for _ in range(2):
+        async with Session(system=reviewer_prompt()) as s:
+            raw = await s.ask(json.dumps(payload, ensure_ascii=False), timeout=300, attachments=attachments)
+        try:
+            report = parse(raw)
+        except ValueError:
+            continue
+        if isinstance(report.get("ok"), bool):
+            break
+        report = None
+    if report is None:
+        raise RuntimeError("the reviewer did not return a verdict")
+    seen = edition_text(reply)
+    problems, dropped = [], []
+    for pr in ([] if report["ok"] else report.get("problems") or [])[:6]:
+        if not isinstance(pr, dict):
+            continue
+        quoted = norm(plain(pr.get("text", "")))
+        if pr.get("kind") != "layout" and (not quoted or quoted not in seen):
+            dropped.append(pr)
+            continue
+        problems.append(f"[{pr.get('kind')}] {pr.get('where')}: \"{pr.get('text')}\": {pr.get('issue')} Fix: {pr.get('fix')}")
+    report["dropped"] = dropped
+    return report, problems
 
 
 async def ping():

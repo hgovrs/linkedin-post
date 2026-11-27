@@ -314,7 +314,40 @@
     return {total, fps: 12.5, scenes: SCENES.map((id, i) => ({id, start: starts[i], settled: settle[i]})), loop: L};
   }
 
-  // Layout audit at each scene's settled instant: anything outside the stage or clipped is a problem.
+  // Floating pieces (the "?" sticker, absolutely positioned labels) must not cover any visible text.
+  function covered(scene) {
+    const shown = el => {
+      for (let n = el; n && n !== document.body; n = n.parentElement) {
+        const cs = getComputedStyle(n);
+        if (cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity) < .5) return false;
+      }
+      return true;
+    };
+    const runs = [], walk = document.createTreeWalker(scene, NodeFilter.SHOW_TEXT);
+    for (let n; (n = walk.nextNode());) {
+      if (!n.textContent.trim() || !shown(n.parentElement)) continue;
+      const rg = document.createRange();
+      rg.selectNodeContents(n);
+      for (const b of rg.getClientRects()) if (b.width > 2 && b.height > 2) runs.push({el: n.parentElement, b, text: n.textContent.trim()});
+    }
+    const floats = [...scene.querySelectorAll("*")].filter(el => !el.matches(".cursor, .ripple, .strike, .paper, .paper *") && shown(el)
+      && (el.matches(".sticker") || (getComputedStyle(el).position === "absolute" && el.textContent.trim())));
+    const out = [];
+    for (const f of floats) {
+      const fb = f.getBoundingClientRect(), round = f.matches(".sticker");
+      const cx = (fb.left + fb.right) / 2, cy = (fb.top + fb.bottom) / 2, rad = Math.min(fb.width, fb.height) / 2;
+      const hit = r => {
+        const b = r.b;
+        if (round) return Math.hypot(Math.max(b.left - cx, 0, cx - b.right), Math.max(b.top - cy, 0, cy - b.bottom)) < rad - 4;
+        return Math.min(fb.right, b.right) - Math.max(fb.left, b.left) > 3 && Math.min(fb.bottom, b.bottom) - Math.max(fb.top, b.top) > 3;
+      };
+      const victim = runs.find(r => !f.contains(r.el) && !r.el.contains(f) && hit(r));
+      if (victim) out.push(`"${(f.textContent.trim() || f.className).slice(0, 20)}" covers the text "${victim.text.slice(0, 30)}"`);
+    }
+    return out;
+  }
+
+  // Layout audit at each scene's settled instant: anything outside the stage, clipped or covered is a problem.
   function audit(info) {
     const problems = [];
     const stage = document.getElementById("stage").getBoundingClientRect();
@@ -335,6 +368,7 @@
       for (const nm of el.querySelectorAll(".r-row .nm")) {
         if (nm.firstElementChild.offsetWidth > nm.clientWidth + 1) problems.push(`${sc.id}: receipt row name "${nm.textContent.trim()}" is too long`);
       }
+      for (const msg of covered(el)) problems.push(`${sc.id}: ${msg}`);
     }
     const t = document.querySelector(".g-title h1");
     if (t.scrollWidth > t.parentElement.clientWidth + 1) problems.push("title too long");
