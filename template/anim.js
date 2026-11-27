@@ -211,6 +211,14 @@
     const IN = 380, OUT = 320;
     const [sHook, sNew, sSetup, sTry, sCheck] = sceneEls;
     const q = (sc, sel) => sc.querySelector(sel), qa = (sc, sel) => [...sc.querySelectorAll(sel)];
+    // Pacing: a scene stays until its text can be read at a relaxed pace (READ_CPS characters a second for
+    // sentences, LABEL of that weight for chips, cards and receipts), and at least HOLD after its last element
+    // appears. Holds cost nothing in the GIF: identical frames merge into one long frame.
+    const READ_CPS = 22, LABEL = .35, LEAD = 1000, HOLD = 3000, MAX_SCENE = 12500;
+    const BODY = ".h, .hk-q, .lead, .steps, .note, .prompt, .ask, .take", LABELS = ".chips, .flow, .hero, .illus, .compare";
+    const textLen = (sc, sel) => qa(sc, sel).reduce((n, el) => n + el.textContent.replace(/\s+/g, " ").trim().length, 0);
+    const readEnd = (sc, start, shown) => Math.round(Math.max(shown + HOLD, Math.min(start + MAX_SCENE,
+      start + LEAD + (textLen(sc, BODY) + LABEL * textLen(sc, LABELS)) / READ_CPS * 1000)));
     const enter = (sc, t) => { set(sc, 0, {o: 0, y: 0}); tw(sc, t, IN, {o: [0, 1], y: [26, 0]}); };
     const leave = (sc, t) => tw(sc, t, OUT, {o: [1, 0], y: [0, -22]}, "in");
     const rise = (node, t, d = 360, dy = 28) => { set(node, 0, {o: 0, y: dy}); tw(node, t, d, {o: [0, 1], y: [dy, 0]}); };
@@ -239,7 +247,7 @@
     rows.forEach((r, i) => { set(r, 0, {o: 1}); tw(r, 1250 + i * 40, 180, {o: [1, .2]}); tw(r, 2150 + i * 110, 260, {o: [.2, 1]}); });
     if (badge) { set(badge, 0, {s: 1}); tw(badge, 2450, 180, {s: [1, 1.35]}, "out"); tw(badge, 2630, 260, {s: [1.35, 1]}, "back"); }
     if (hookEls.sticker) { tw(hookEls.sticker, 1150, 160, {s: [1, 0], o: [1, 0]}, "in"); tw(hookEls.sticker, 2750, 420, {s: [0, 1], o: [0, 1], r: [-30, 12]}, "back"); }
-    t = 4300; leave(sHook, t - OUT);
+    t = readEnd(sHook, 0, 3200); leave(sHook, t - OUT);
 
     // 2 · what's new
     starts.push(t); enter(sNew, t);
@@ -248,7 +256,7 @@
     rise(q(sNew, ".lead"), t + 480, 400, 22);
     const chips = qa(sNew, ".chip");
     chips.forEach((c, i) => pop(c, t + 860 + i * 260));
-    let tEnd = t + 860 + chips.length * 260 + 2000;
+    let shownNew = t + 860 + chips.length * 260 + 120;
     if (nw.flow) {
       const [na, nb] = qa(sNew, ".node"), wire = q(sNew, ".wire"), via = q(sNew, ".link span");
       const t0 = t + 860 + chips.length * 260 + 200;
@@ -256,9 +264,9 @@
       set(wire, 0, {sy: 0}); tw(wire, t0 + 380, 420, {sy: [0, 1]}, "inout");
       rise(via, t0 + 560, 320, 10);
       set(nb, 0, {o: 0, x: 50}); tw(nb, t0 + 760, 420, {o: [0, 1], x: [50, 0]});
-      tEnd = t0 + 760 + 420 + 2300;
+      shownNew = t0 + 760 + 420;
     }
-    t = tEnd; leave(sNew, t - OUT);
+    t = readEnd(sNew, t, shownNew); leave(sNew, t - OUT);
 
     // 3 · set up
     starts.push(t); enter(sSetup, t);
@@ -274,14 +282,14 @@
     let tn = t + 560 + steps.length * 640 + 200;
     const note = q(sSetup, ".note");
     if (note) { set(note, 0, {o: 0, r: -5, y: 14}); tw(note, tn, 460, {o: [0, 1], r: [-5, -1.5], y: [14, 0]}, "back"); tn += 460; }
-    t = tn + 2100; leave(sSetup, t - OUT);
+    t = readEnd(sSetup, t, tn); leave(sSetup, t - OUT);
 
     // 4 · try it (typed prompt)
     starts.push(t); enter(sTry, t);
     rise(q(sTry, ".kicker"), t + 100, 300, 16); rise(q(sTry, ".h"), t + 160, 420, 34);
     const card = q(sTry, ".prompt-wrap"); set(card, 0, {o: 0, s: .96}); tw(card, t + 380, 420, {o: [0, 1], s: [.96, 1]});
     const chars = qa(sTry, ".ch"), CPS = Math.max(80, chars.length / 2.6), tType = t + 900, tTyped = tType + chars.length / CPS * 1000;
-    const tryEnd = tTyped + 2800;
+    const tryEnd = readEnd(sTry, t, tTyped);
     hooks.push(tt => {
       const n = Math.max(0, Math.min(chars.length, Math.floor((tt - tType) * CPS / 1000)));
       chars.forEach((c, i) => { c.classList.toggle("on", i < n); c.classList.remove("cur"); });
@@ -308,7 +316,7 @@
     rb.querySelectorAll(".miss").forEach(m => pop(m, tFx + 520, 380));
     rise(q(sCheck, ".pay"), tFx + 1100, 460, 30);
     rise(q(sCheck, ".take"), tFx + 1500, 420, 18);
-    t = tFx + 1500 + 420 + 3800; leave(sCheck, t - OUT);
+    t = readEnd(sCheck, t, tFx + 1500 + 420); leave(sCheck, t - OUT);
 
     // loop: rebuild the hook so the last frame flows into frame 0
     const L = t;

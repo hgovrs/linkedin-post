@@ -43,7 +43,8 @@ leave the reader with **one experiment they can try** and **one reason the resul
 - One looping animated GIF per edition, 1080 × 1350 (4:5), drawn from `issues/NNN-slug/spec.json`
   in five scenes: the hook (cover: GitHub Copilot app vs Claude Code) → what's new → set up →
   try this prompt → how it compares (both products side by side, labelled “Per both products' docs”
-  with the date they were read). About 30 seconds, ≤ 250 frames and < 8 MB (LinkedIn limits).
+  with the date they were read). Each scene stays as long as its text takes to read (about 50 seconds
+  in total; pauses cost no frames), ≤ 250 frames and < 8 MB (LinkedIn limits).
 - Every frame shows the series name, issue number, a step counter, a timeline and both sources;
   the caption ends with both links.
 - English only, text large enough for a phone. Issues 001–003 use the earlier “Wait, but…” check
