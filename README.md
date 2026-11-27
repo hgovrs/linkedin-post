@@ -12,7 +12,7 @@ Separate from Caramelingo: its own Zernio account, profile ("Agent Field Notes",
 
 ## How a day works
 
-The **Daily edition** workflow runs every hour from 06:17 to 20:17 São Paulo time:
+The **Daily edition** workflow runs twice an hour (:07 and :37) from 06:07 to 20:37 São Paulo time:
 
 1. **plan** (Zernio key only, standard library): syncs scheduled posts from Zernio (published,
    failed → Zernio retry up to 3 times, deleted → slot left empty) and picks the next free 10:00
@@ -27,7 +27,7 @@ The **Daily edition** workflow runs every hour from 06:17 to 20:17 São Paulo ti
    schedules it (deduplicated by externalId).
 5. **save** (separate job, no secrets, the only one that can push): commits `state.json` and the edition text.
 
-A failure fails the run (GitHub emails the owner) and the next hourly run tries again.
+A failure fails the run (GitHub emails the owner) and the next run, half an hour later, tries again.
 
 ## Setup
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Agent Field Notes · daily run (GitHub Actions every hour from 06:17 to 20:17 BRT, or locally).
+"""Agent Field Notes · daily run (GitHub Actions twice an hour from 06:07 to 20:37 BRT, or locally).
 
 Posts go out at 10:00 America/Sao_Paulo, one per day. The edition for a day is written the day
 before (any run after 09:30) or, at the latest, by a run before 09:30 on the day itself.

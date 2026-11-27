@@ -2,7 +2,7 @@ name: Daily edition
 
 on:
   schedule:
-    - cron: "17 9-23 * * *" # every hour from 06:17 to 20:17 in São Paulo (UTC−3)
+    - cron: "7,37 9-23 * * *" # twice an hour from 06:07 to 20:37 in São Paulo (UTC−3)
   workflow_dispatch:
     inputs:
       mode:
