@@ -1,0 +1,102 @@
+{
+  "title": "The Schema-First Test",
+  "topic": "GitHub Copilot app · connectors",
+  "hook": {
+    "lines": [
+      "Ask before",
+      "you *migrate.*"
+    ],
+    "question": "Does Copilot read the ==real schema== first?",
+    "hero": {
+      "type": "receipt"
+    }
+  },
+  "new": {
+    "headline": "Plug Copilot into *Supabase.*",
+    "summary": "Eight more services, including Supabase, now connect to Copilot through verified MCP servers.",
+    "chips": [
+      "Public preview",
+      "All Copilot plans",
+      "Business: admin policy"
+    ],
+    "flow": {
+      "from": {
+        "icon": "i-desktop",
+        "name": "GitHub Copilot app",
+        "sub": "Customize → Connect"
+      },
+      "via": "GitHub-verified MCP server",
+      "to": {
+        "icon": "i-box",
+        "name": "Supabase",
+        "sub": "projects and databases"
+      }
+    }
+  },
+  "setup": {
+    "headline": "Connect *Supabase.*",
+    "steps": [
+      "In the GitHub Copilot app, open **Customize**.",
+      "Select **Connect** on Supabase.",
+      "On Business or Enterprise, an admin must enable the **Editor preview features** policy."
+    ],
+    "note": "Use a test project, not production."
+  },
+  "try": {
+    "headline": "Try this *prompt.*",
+    "chips": [
+      "Supabase connector"
+    ],
+    "prompt": "Using the Supabase connector, list the tables in my test project and the columns of each.\n\nThen propose, as text only, a migration that adds a nullable notes column to one table.\n\nDon't run it or change any data."
+  },
+  "check": {
+    "question": "Wait, but is that the live schema?",
+    "headline": "Right tables. *Wrong columns.*",
+    "expected": {
+      "label": "Expected",
+      "rows": [
+        {
+          "icon": "i-user",
+          "name": "users",
+          "value": "4 cols"
+        },
+        {
+          "icon": "i-cart",
+          "name": "orders",
+          "value": "6 cols"
+        }
+      ],
+      "total": [
+        "Tables",
+        "2"
+      ]
+    },
+    "possible": {
+      "label": "Possible bug",
+      "rows": [
+        {
+          "icon": "i-user",
+          "name": "users",
+          "value": "4 cols"
+        },
+        {
+          "icon": "i-cart",
+          "name": "orders",
+          "value": "5 cols",
+          "mark": "flag"
+        }
+      ],
+      "total": [
+        "Tables",
+        "2"
+      ]
+    },
+    "takeaway": "**Compare against the live schema.** If a column is off, ask where it read from before trusting any migration."
+  },
+  "issue": 2,
+  "source": {
+    "name": "GitHub Changelog",
+    "date": "Nov 18, 2026",
+    "url": "https://github.blog/changelog/2026-11-18-connect-supabase-box-calendly-and-more-to-copilot#connect-a-service"
+  }
+}

@@ -1,0 +1,11 @@
+Since switching from Claude to GitHub Copilot, I’ve started keeping field notes. The first entry is a shopping list for the desktop app: one mug and one notebook.
+
+Ask the agent to add both to a local test cart, then refresh the page. Suppose the cart badge still says “2.”
+
+Wait, but are they the same two items?
+
+Two mugs would pass that count check, too. With GitHub’s browser-use public preview in Chrome or Edge, I’d ask Copilot for the item names and quantities before and after the refresh. No checkout, no code changes. Just two lists I can compare.
+
+The carousel includes the setup and the exact prompt.
+
+Source: https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases/#let-copilot-work-in-your-browser

@@ -1,0 +1,71 @@
+{
+  "issue": 1,
+  "title": "The Refresh Test",
+  "topic": "GitHub Copilot app · browser use",
+  "source": {
+    "name": "GitHub Changelog",
+    "date": "Nov 17, 2026",
+    "url": "https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases/#let-copilot-work-in-your-browser"
+  },
+  "hook": {
+    "lines": ["Two items.", "One *refresh.*"],
+    "question": "Can the agent tell ==what stayed== in the cart?",
+    "hero": {
+      "type": "browser",
+      "tab": "Demo shop · Cart",
+      "url": "localhost:3000/cart",
+      "heading": "Your cart",
+      "badge": "2",
+      "rows": [
+        {"icon": "mug", "name": "Mug", "detail": "Qty 1", "value": "$14.00"},
+        {"icon": "notebook", "name": "Notebook", "detail": "Qty 1", "value": "$9.00"}
+      ],
+      "footer": ["Subtotal", "$23.00"]
+    }
+  },
+  "new": {
+    "headline": "Give Copilot a *browser tab.*",
+    "summary": "The GitHub Copilot desktop app can click through a web app in Chrome or Edge.",
+    "chips": ["Public preview", "Announced Nov 17, 2026", "Off by default"],
+    "flow": {
+      "from": {"icon": "i-desktop", "name": "GitHub Copilot app", "sub": "on your desktop"},
+      "via": "GitHub Copilot browser extension",
+      "to": {"icon": "i-globe", "name": "Chrome or Edge", "sub": "in an isolated tab group"}
+    }
+  },
+  "setup": {
+    "headline": "Set up a *test run.*",
+    "steps": [
+      "Install the GitHub Copilot browser extension in Chrome or Edge.",
+      "In the app, open **Settings → Computer Use** and enable **Computer Use** and **Browser Use**.",
+      "Open a local demo shop with two different products."
+    ],
+    "note": "Use test data. There’s no need to place an order."
+  },
+  "try": {
+    "headline": "Try this *prompt.*",
+    "chips": ["Browser use"],
+    "prompt": "In my local shop, add one mug and one notebook to the cart.\n\nList the item names and quantities. Refresh the page once. List the names and quantities again.\n\nReport any difference. Don’t check out or change the code."
+  },
+  "check": {
+    "question": "Wait, but are they the same two items?",
+    "headline": "Same count. *Wrong cart.*",
+    "expected": {
+      "label": "Expected",
+      "rows": [
+        {"icon": "mug", "name": "Mug", "value": "×1"},
+        {"icon": "notebook", "name": "Notebook", "value": "×1"}
+      ],
+      "total": ["Total", "2"]
+    },
+    "possible": {
+      "label": "Possible bug",
+      "rows": [
+        {"icon": "mug", "name": "Mug", "value": "×2", "mark": "flag"},
+        {"icon": "notebook", "name": "Notebook", "value": "missing", "mark": "gone"}
+      ],
+      "total": ["Total", "2"]
+    },
+    "takeaway": "**Check the items, not just the count.** If they change on refresh, capture the failure in a regression test."
+  }
+}

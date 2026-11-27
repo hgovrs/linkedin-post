@@ -1,0 +1,15 @@
+A migration is only as good as the schema it was written against.
+
+GitHub just added eight more services you can connect to Copilot through GitHub-verified MCP servers, Supabase among them. It's in public preview for all Copilot plans. On Copilot Business or Enterprise, an admin needs to enable the Editor preview features policy first. In the GitHub Copilot app, you open Customize and select Connect.
+
+The changelog's own example: have Copilot check your Supabase schema before it writes a migration.
+
+Wait, but is that the live schema?
+
+Suppose Copilot lists the right tables and the right count. A column could still be missing or wrong. I'd point it at a test project, ask for every table and its columns, and compare that list with what I know is there. Then I'd have it propose a migration as text only. No running it, no data changes, nothing near production.
+
+The GIF walks through the setup and the exact prompt.
+
+#GitHubCopilot #Supabase #MCP
+
+Source: https://github.blog/changelog/2026-11-18-connect-supabase-box-calendly-and-more-to-copilot#connect-a-service

@@ -1,0 +1,32 @@
+{
+  "issue": 2,
+  "slug": "002-the-schema-first-test",
+  "title": "The Schema-First Test",
+  "document_title": "Agent Field Notes No. 002 — The Schema-First Test",
+  "format": "gif",
+  "created": "2026-11-27",
+  "source": {
+    "name": "GitHub Changelog",
+    "title": "Connect Supabase, Box, Calendly, and more to Copilot",
+    "url": "https://github.blog/changelog/2026-11-18-connect-supabase-box-calendly-and-more-to-copilot#connect-a-service",
+    "published": "2026-11-18"
+  },
+  "verified_facts": [
+    {
+      "claim": "Eight more services connect via GitHub-verified MCP servers, in public preview",
+      "quote": "You can now connect eight more services to Copilot using GitHub-verified MCP servers, or connectors, available in public preview."
+    },
+    {
+      "claim": "Connect in the Copilot app via Customize",
+      "quote": "Copilot app : Open Customize and select Connect on the service you want."
+    },
+    {
+      "claim": "Public preview for all plans; Business/Enterprise admin policy",
+      "quote": "Connectors are in public preview for all Copilot plans. With Copilot Business or Copilot Enterprise, an admin needs to enable the Editor preview features policy."
+    },
+    {
+      "claim": "Example of checking the Supabase schema before a migration",
+      "quote": "For example, you can ask Copilot why your latest Buildkite build failed and have it fix the code in the same session, or have it check your Supabase schema before it writes a migration."
+    }
+  ]
+}

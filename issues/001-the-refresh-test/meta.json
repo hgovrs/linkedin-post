@@ -1,0 +1,33 @@
+{
+  "issue": 1,
+  "slug": "001-the-refresh-test",
+  "title": "The Refresh Test",
+  "document_title": "Agent Field Notes No. 001 — The Refresh Test",
+  "format": "carousel",
+  "source": {
+    "name": "GitHub Changelog",
+    "title": "GitHub Copilot app, Microsoft Ignite releases",
+    "section": "Let Copilot work in your browser",
+    "url": "https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases/#let-copilot-work-in-your-browser",
+    "published": "2026-11-17"
+  },
+  "verified_facts": [
+    "Browser use is in public preview for the GitHub Copilot app.",
+    "Works in Chromium-based browsers, including Chrome and Edge, with the GitHub Copilot extension, in an isolated tab group.",
+    "Off by default; enable both Enable Computer Use and Enable Browser Use under Settings > Computer Use.",
+    "Docs (gh.io/about-browser-use): Edge also needs Google Chrome installed."
+  ],
+  "must_include": [
+    "Two items.",
+    "Give Copilot a browser tab.",
+    "Public preview",
+    "Off by default",
+    "Use test data. There’s no need to place an order.",
+    "In my local shop, add one mug and one notebook to the cart.",
+    "List the item names and quantities. Refresh the page once. List the names and quantities again.",
+    "Report any difference. Don’t check out or change the code.",
+    "Wait, but are they the same two items?",
+    "Illustration / not an observed result.",
+    "If they change on refresh, capture the failure in a regression test."
+  ]
+}

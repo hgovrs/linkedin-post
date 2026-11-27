@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agent Field Notes No. 001 — The Refresh Test</title>
+<link rel="stylesheet" href="../../template/field-notes.css">
+<style>
+/* Issue-specific layout only. Shared styles live in template/field-notes.css. */
+.s1 .cover-copy{margin-top:54px}
+.s1 h1{font-size:122px;line-height:1}
+.s1 h1 em{font-size:1.14em}
+.s1 .cover-sub{margin-top:26px;font-size:60px;font-weight:600;line-height:1.12;color:var(--text-2);letter-spacing:-.03em}
+.s1 .cover-scene{flex:1;margin:24px 0 16px;display:flex;flex-direction:column;justify-content:center}
+.s1 .stage{height:572px}
+.s1 .sticker{right:-10px;top:150px}
+
+.s2 .status{margin-top:30px;display:flex;align-items:center;gap:12px}
+.s2 .flow{margin-top:44px}
+.s2 .node{padding:30px 32px}
+.s2 .link{height:88px}
+.s2 .tabs{padding:30px 32px 34px}
+.s2 .tabs-top{display:flex;align-items:center;gap:12px;font-size:28px;font-weight:600;color:var(--text-2)}
+.s2 .tabs-top svg{width:26px;height:26px;color:var(--muted)}
+.s2 .strip{margin-top:52px;display:flex;align-items:flex-end;gap:18px;border-bottom:1.5px solid var(--line)}
+.s2 .group{position:relative;display:flex;align-items:flex-end;gap:8px;padding:12px 12px 0;border:2.5px solid var(--mint);border-bottom:none;border-radius:16px 16px 0 0;background:rgba(var(--mint-rgb),.07)}
+.s2 .g-label{position:absolute;top:-21px;left:16px;background:var(--mint);color:var(--on-mint);font-family:var(--mono);font-size:21px;font-weight:500;padding:5px 12px;border-radius:9px;white-space:nowrap}
+.s2 .tab{height:58px;padding:0 20px;display:flex;align-items:center;gap:10px;border-radius:12px 12px 0 0;background:var(--surface-2);border:1.5px solid var(--line);border-bottom:none;font-size:24px;color:var(--text-2);font-weight:500;white-space:nowrap}
+.s2 .tab svg{width:20px;height:20px;color:var(--mint)}
+.s2 .tab.off{color:var(--faint);border-style:dashed;background:transparent}
+.s2 .others{position:relative;display:flex;gap:8px;align-items:flex-end}
+.s2 .o-label{position:absolute;top:-34px;left:2px;font-family:var(--mono);font-size:20px;color:var(--faint);white-space:nowrap}
+.s2 .page-sk{padding-top:18px}
+.s2 .page-sk i{display:block;height:16px;border-radius:8px;background:rgba(247,242,255,.08);margin-top:18px}
+.s2 .page-sk i.short{width:55%}
+
+.s3 .steps{margin-top:38px}
+.s3 .step{padding:26px 32px}
+.s3 .note{margin-top:30px;align-self:flex-end;max-width:640px;transform:rotate(-1.5deg)}
+
+.s4 .prompt-wrap{margin-top:40px}
+.s4 .prompt{font-size:37px}
+.s4 .mini-steps{margin-top:40px}
+
+.s5 .s5-h{margin-top:20px;font-size:78px;white-space:nowrap}
+.s5 .ask-q{margin-top:20px;font-family:var(--serif);font-style:italic;font-size:58px;line-height:1.15;letter-spacing:-.005em}
+.s5 .compare-wrap{margin-top:30px;display:flex;flex-direction:column;gap:18px}
+.s5 .take{margin-top:30px;font-size:32px;line-height:1.38;color:var(--text-2);text-wrap:pretty}
+.s5 .take strong{color:var(--text);font-weight:600}
+.s5 .source{margin-top:26px}
+</style>
+</head>
+<body>
+<main class="issue" data-series="Agent Field Notes" data-issue="No. 001">
+
+<!-- 01 · Hook -->
+<section class="slide s1">
+  <div class="cover-copy">
+    <h1 class="h">Two items.<br>One <em>refresh.</em></h1>
+    <p class="h cover-sub">Can the agent tell <mark>what stayed</mark> in the cart?</p>
+  </div>
+  <div class="cover-scene"><div class="stage">
+    <div class="browser">
+      <div class="b-bar"><div class="dots"><i></i><i></i><i></i></div><div class="b-tab"><svg><use href="#i-cart"/></svg>Demo shop · Cart</div></div>
+      <div class="b-nav">
+        <span class="nav-btn"><svg><use href="#i-left"/></svg></span><span class="nav-btn"><svg><use href="#i-right"/></svg></span>
+        <span class="nav-btn hot"><svg><use href="#i-refresh"/></svg><svg class="cursor"><use href="#i-cursor"/></svg></span>
+        <div class="url">localhost:3000<span class="path">/cart</span></div>
+      </div>
+      <div class="b-body">
+        <div class="cart-head"><svg><use href="#i-cart"/></svg>Your cart<span class="badge">2</span></div>
+        <div class="item"><div class="thumb t-mint"><svg><use href="#mug"/></svg></div><div class="meta"><b>Mug</b><span>Qty 1</span></div><div class="price">$14.00</div></div>
+        <div class="item"><div class="thumb t-pink"><svg><use href="#notebook"/></svg></div><div class="meta"><b>Notebook</b><span>Qty 1</span></div><div class="price">$9.00</div></div>
+        <div class="subtotal"><span>Subtotal</span><b>$23.00</b></div>
+      </div>
+    </div>
+    <div class="sticker">?</div>
+  </div></div>
+</section>
+
+<!-- 02 · Feature -->
+<section class="slide s2">
+  <p class="kicker">What’s new</p>
+  <h2 class="h h-l">Give Copilot a <em>browser tab.</em></h2>
+  <p class="lead">The GitHub Copilot desktop app can click through a web app in Chrome or Edge.</p>
+  <div class="status"><span class="chip mono mint"><span class="dot"></span>Public preview</span><span class="sep">·</span><span class="chip mono">Announced Nov 17, 2026</span><span class="sep">·</span><span class="chip mono">Off by default</span></div>
+  <div class="flow">
+    <div class="node card"><span class="n-ic c-violet"><svg><use href="#i-desktop"/></svg></span><div><b>GitHub Copilot app</b><small>on your desktop</small></div></div>
+    <div class="link">GitHub Copilot browser extension</div>
+    <div class="tabs card">
+      <div class="tabs-top"><svg><use href="#i-globe"/></svg>Chrome or Edge</div>
+      <div class="strip">
+        <div class="group"><span class="g-label">Isolated tab group</span><span class="tab"><svg><use href="#i-cart"/></svg>localhost:3000</span><span class="tab">Cart</span></div>
+        <div class="others"><span class="o-label">your other tabs</span><span class="tab off">Inbox</span><span class="tab off">Docs</span></div>
+      </div>
+      <div class="page-sk"><i></i><i></i><i></i><i class="short"></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 · Setup -->
+<section class="slide s3">
+  <p class="kicker">Setup</p>
+  <h2 class="h h-l">Set up a <em>test run.</em></h2>
+  <div class="steps">
+    <div class="step card"><div class="num">01</div><div class="step-body">
+      <p>Install the GitHub Copilot browser extension in Chrome or Edge.</p>
+      <p class="aside">Using Edge? Chrome must be installed too.</p>
+    </div></div>
+    <div class="step card"><div class="num">02</div><div class="step-body">
+      <p>In the app, open <strong>Settings → Computer Use</strong> and enable both <strong>Computer Use</strong> and <strong>Browser Use</strong>.</p>
+      <div class="toggles"><span class="mini">Enable Computer Use<span class="toggle"><i></i></span></span><span class="mini">Enable Browser Use<span class="toggle"><i></i></span></span></div>
+    </div></div>
+    <div class="step card"><div class="num">03</div><div class="step-body">
+      <p>Open a local demo shop with two different products.</p>
+      <div class="mini"><svg><use href="#i-term"/></svg><span class="mono">localhost:3000</span><svg class="ic" style="color:var(--mint)"><use href="#mug"/></svg>Mug<svg class="ic" style="color:var(--pink)"><use href="#notebook"/></svg>Notebook</div>
+    </div></div>
+  </div>
+  <div class="note"><svg><use href="#i-note-arrow"/></svg><span>Use test data. There’s no need to place an order.</span></div>
+</section>
+
+<!-- 04 · Experiment -->
+<section class="slide s4">
+  <p class="kicker">Here’s what I’d check</p>
+  <h2 class="h h-l">Try this <em>prompt.</em></h2>
+  <p class="lead">Use the exact prompt below.</p>
+  <div class="prompt-wrap"><div class="prompt-card">
+    <div class="p-top"><span class="chip mono">Prompt</span><span class="chip mint"><svg><use href="#i-globe"/></svg>Browser use</span></div>
+    <div class="prompt">
+      <p>In my local shop, add one mug and one notebook to the cart.</p>
+      <p>List the item names and quantities. Refresh the page once. List the names and quantities again.</p>
+      <p>Report any difference. Don’t check out or change the code.</p>
+    </div>
+  </div></div>
+  <div class="mini-steps"><span class="chip"><svg><use href="#i-cart"/></svg>Add two items</span><svg><use href="#i-arrow"/></svg><span class="chip"><svg><use href="#i-refresh"/></svg>Refresh once</span><svg><use href="#i-arrow"/></svg><span class="chip"><svg><use href="#i-list"/></svg>Compare the lists</span></div>
+</section>
+
+<!-- 05 · Payoff -->
+<section class="slide s5" data-end="The Refresh Test">
+  <p class="kicker">Why it matters</p>
+  <h2 class="h s5-h">Same count. <em>Wrong cart.</em></h2>
+  <p class="ask-q"><mark>Wait, but are they the same two items?</mark></p>
+  <div class="compare-wrap">
+    <span class="illus">Illustration / not an observed result.</span>
+    <div class="compare">
+      <div class="rcpt ok">
+        <div class="r-head"><svg><use href="#i-check"/></svg>Expected</div>
+        <div class="r-row"><svg class="ic"><use href="#mug"/></svg><span class="nm">Mug</span><span class="q">×1</span></div>
+        <div class="r-row"><svg class="ic"><use href="#notebook"/></svg><span class="nm">Notebook</span><span class="q">×1</span></div>
+        <div class="r-total"><span>Total</span><b>2</b></div>
+      </div>
+      <div class="mid" aria-hidden="true"><span>≠</span><span>=</span></div>
+      <div class="rcpt bad">
+        <div class="r-head"><svg><use href="#i-alert"/></svg>Possible bug</div>
+        <div class="r-row"><svg class="ic"><use href="#mug"/></svg><span class="nm">Mug</span><span class="q flag">×2</span></div>
+        <div class="r-row gone"><svg class="ic"><use href="#notebook"/></svg><span class="nm">Notebook</span><span class="miss">missing</span></div>
+        <div class="r-total"><span>Total</span><b>2</b></div>
+      </div>
+    </div>
+  </div>
+  <p class="take"><strong>Check the items, not just the count.</strong> If they change on refresh, capture the failure in a regression test.</p>
+  <a class="source card" href="https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases/#let-copilot-work-in-your-browser">
+    <span class="label">Source</span>
+    <b>GitHub Changelog · Nov 17, 2026</b>
+    <span class="url-text">github.blog/changelog/<br>2026-11-17-github-copilot-app-microsoft-ignite-releases</span>
+  </a>
+</section>
+
+</main>
+<script src="../../template/icons.js"></script>
+<script src="../../template/field-notes.js"></script>
+</body>
+</html>

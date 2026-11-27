@@ -1,0 +1,6 @@
+.env
+.work/
+__pycache__/
+*.pyc
+.DS_Store
+issues/*/dist/
