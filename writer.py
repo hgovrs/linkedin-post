@@ -162,6 +162,9 @@ def validate(reply, candidates, covered):
             for i, r in enumerate(d.get("rows", [])):
                 lim(f"check.{side}.rows[{i}].name", r.get("name"), 16)
                 lim(f"check.{side}.rows[{i}].value", r.get("value"), 10)
+                both, most = len(plain(r.get("name"))) + len(plain(r.get("value"))), 17 if r.get("mark") == "flag" else 19
+                if both > most:  # measured: what fits on one line of a receipt
+                    p.append(f"check.{side}.rows[{i}]: name + value have {both} chars together (max {most}); shorten one of them")
                 if r.get("icon") and r["icon"] not in ICONS:
                     p.append(f"check.{side}.rows[{i}].icon must be one of the listed icons")
         if not any(r.get("mark") for r in po.get("rows", [])):

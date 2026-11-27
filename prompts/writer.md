@@ -66,7 +66,7 @@ You receive `today`, `issue`, `covered` (sources already used) and `candidates` 
 
 `flow` and the two `total` fields are optional. Inline markup inside strings: `*serif emphasis*`, `==yellow marker==`, `**bold**` — use each sparingly.
 
-Rows: `{"icon": "<icon or omit>", "name": "<= 16 chars", "value": "<= 10 chars", "mark": "flag" | "gone" (possible side only, optional)}`. `flag` boxes a wrong value; `gone` strikes the row and shows its value (e.g. "missing") as a tag.
+Rows: `{"icon": "<icon or omit>", "name": "<= 16 chars", "value": "<= 10 chars", "mark": "flag" | "gone" (possible side only, optional)}`. Name and value share one line: together at most 19 chars, or 17 on a `flag` row (e.g. "orders" + "5 cols"). `flag` boxes a wrong value; `gone` strikes the row and shows its value (e.g. "missing") as a tag.
 
 Icons: mug, notebook, i-doc, i-box, i-user, i-key, i-chart, i-shield, i-card, i-bug, i-clock, i-lock, i-chat, i-cart, i-globe, i-desktop, i-term, i-spark, i-puzzle.
 
