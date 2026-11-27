@@ -18,6 +18,7 @@ You receive `today`, `issue`, `covered` (sources already used), `candidates` (Gi
 - Facts about Claude Code come only from the Claude pages you received; facts about the Copilot app only from the candidate article. Back both with verbatim quotes in `facts` (section 5).
 - Never say Claude Code can't or doesn't do something unless its docs say exactly that. Say what its docs describe instead ("Claude Code's docs: connect with the `/chrome` command"). Something missing from the pages you got doesn't prove it doesn't exist.
 - Compare like with like. When status matters (public preview, beta, a required plan), say it for both sides.
+- Who can use it: keep every condition a source attaches (annual plans only, a minimum app version, opt-in or experimental settings, regions, admin policy). Put the one that matters most on screen and the rest in the caption. A plan comparison that drops a condition is wrong, not simplified.
 - If Claude Code does something just as well, show it as an equal row ("="). One fair row makes the edge more believable.
 - Play up the rivalry, never insult. No mocking Claude, Anthropic or people who use it.
 
