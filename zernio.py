@@ -163,6 +163,20 @@ def create_post(issue_dir, at, dry_run=False):
     return {"status": "scheduled", "post": created.get("post", created)}
 
 
+def update_post(issue_dir):
+    """After a manual fix: upload the edition's media and caption again into its scheduled post."""
+    body, item, media = post_body(issue_dir, None, account_id())
+    existing = find_post(body["externalId"])
+    if not existing:
+        raise ZernioError(f"No post with externalId {body['externalId']}.")
+    post = existing[0]
+    if post.get("status") not in ("scheduled", "draft"):
+        raise ZernioError(f"Post {post['_id']} is {post.get('status')}; only scheduled posts can change.")
+    item["url"] = upload(media)
+    updated = api("PUT", f"/posts/{post['_id']}", {"content": body["content"], "mediaItems": [item]})
+    return updated.get("post", updated)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -170,6 +184,8 @@ def main():
     c = sub.add_parser("connect-url"); c.add_argument("platform", nargs="?", default="linkedin")
     sub.add_parser("accounts")
     f = sub.add_parser("find-post"); f.add_argument("external_id")
+    u = sub.add_parser("update-post", help="re-upload an edition's GIF and caption into its scheduled post")
+    u.add_argument("issue_dir")
     a = ap.parse_args()
     try:
         if a.cmd == "setup":
@@ -184,6 +200,9 @@ def main():
             print(account_id() if accounts else "No LinkedIn account connected yet.")
         elif a.cmd == "find-post":
             print(json.dumps(find_post(a.external_id), indent=2, ensure_ascii=False))
+        elif a.cmd == "update-post":
+            post = update_post(a.issue_dir)
+            print(json.dumps({k: post.get(k) for k in ("_id", "status", "scheduledFor")}))
     except ZernioError as exc:
         sys.exit(str(exc))
 

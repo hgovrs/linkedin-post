@@ -107,6 +107,7 @@ html,body{background:var(--bg);margin:0}
 .s-check .mid span:first-child,.s-check .mid span:last-child{grid-row:auto;color:inherit}
 .strike{position:absolute;left:-4px;right:-4px;top:52%;height:3px;background:var(--pink);transform-origin:left}
 .nm-t{position:relative}
+.r-row .nm{min-width:0;white-space:nowrap}.r-row .q,.r-row .miss{flex:none;white-space:nowrap}
 .r-row.gone .nm{color:var(--muted);text-decoration:none}
 .s-check .pay{margin-top:30px;font-size:64px}
 .s-check .take{margin-top:14px;font-size:30px;line-height:1.36;color:var(--text-2);text-wrap:pretty}

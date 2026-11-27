@@ -137,6 +137,14 @@
       'italic 400 30px "Instrument Serif"', '400 30px "DM Mono"', '500 30px "DM Mono"'].map(f => document.fonts.load(f)));
     await document.fonts.ready;
 
+    // Receipt names stay on one line: long ones shrink (to 76% at most), equally across both receipts.
+    for (const group of stage.querySelectorAll(".compare, .rcpt.solo")) {
+      const names = [...group.querySelectorAll(".r-row .nm")];
+      const over = () => names.some(nm => nm.firstElementChild.offsetWidth > nm.clientWidth + 1);
+      const base = names.length ? parseFloat(getComputedStyle(names[0]).fontSize) : 0;
+      for (let px = base - 1; names.length && over() && px >= base * .76; px--) names.forEach(nm => { nm.style.fontSize = px + "px"; });
+    }
+
     // Shrink a scene uniformly (CSS zoom) if its content would not fit the stage.
     const sceneEls = [...stage.querySelectorAll(".scene")];
     const fits = sc => { const b = stage.getBoundingClientRect().bottom; return [...sc.children].every(c => c.getBoundingClientRect().bottom <= b + 1); };
@@ -323,6 +331,9 @@
       }
       for (const c of el.querySelectorAll(".chip, .r-row, .url, .b-tab, .ln, .nm")) {
         if (c.scrollWidth > c.clientWidth + 1 && getComputedStyle(c).overflow !== "visible") problems.push(`${sc.id}: ${c.className} clipped`);
+      }
+      for (const nm of el.querySelectorAll(".r-row .nm")) {
+        if (nm.firstElementChild.offsetWidth > nm.clientWidth + 1) problems.push(`${sc.id}: receipt row name "${nm.textContent.trim()}" is too long`);
       }
     }
     const t = document.querySelector(".g-title h1");

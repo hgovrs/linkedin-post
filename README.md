@@ -1,5 +1,7 @@
 # Agent Field Notes
 
+![Agent Field Notes No. 001, The Refresh Test: an animated explainer](https://github.com/user-attachments/assets/a003c213-636a-4d3d-b894-fd73b7f07372)
+
 A daily LinkedIn series about useful AI news for developers (GitHub Copilot app first). Copilot
 writes each edition, a template draws it as an animated GIF, and Zernio schedules it for
 **10:00 America/Sao_Paulo**. Everything runs on GitHub Actions in this public repo, so it doesn't
@@ -42,6 +44,7 @@ Locally (`.env` holds `LINKEDIN_ZERNIO_API_KEY=…`; Copilot uses `gh auth token
 source ~/development/env.sh
 python3 daily.py run --dry-run
 python3 gif.py issues/002-the-schema-first-test     # re-render one edition (dist/ is not committed)
+python3 zernio.py update-post issues/002-the-schema-first-test   # after a manual fix: new GIF + caption into the scheduled post
 python3 zernio.py accounts
 ```
 
