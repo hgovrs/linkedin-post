@@ -21,7 +21,7 @@ jobs:
   edition:
     if: github.repository == 'hgovrs/linkedin-post'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 120 # Opus 5.5 at max effort can take minutes per turn (up to 5 turns + reviews)
     environment: linkedin
     permissions:
       contents: read

@@ -18,7 +18,11 @@ from copilot.rpc import PermissionDecisionReject
 from copilot.session_events import AssistantMessageData, AssistantUsageData
 
 HERE = pathlib.Path(__file__).resolve().parent
-MODEL = os.environ.get("AFN_MODEL") or "claude-opus-5.5"  # writer and reviewer; the run fails if Copilot serves another
+# Writer and reviewer run at Copilot's maximum: Claude Opus 5.5, reasoning effort "max", 1M-token context.
+# Every model call is checked; a run fails if Copilot serves anything else.
+MODEL = os.environ.get("AFN_MODEL") or "claude-opus-5.5"
+EFFORT = os.environ.get("AFN_EFFORT") or "max"
+CONTEXT_TIER, LONG_CONTEXT_MIN = "long_context", 900_000  # Copilot reports ~952k prompt tokens (1M minus output)
 ICONS = {"mug", "notebook", "i-doc", "i-box", "i-user", "i-key", "i-chart", "i-shield", "i-card", "i-bug",
          "i-clock", "i-lock", "i-chat", "i-cart", "i-globe", "i-desktop", "i-term", "i-spark", "i-puzzle"}
 
@@ -190,7 +194,7 @@ class Session:
     def __init__(self, system=None, model=None):
         self.system = system
         self.model = model or MODEL
-        self.models_used = set()
+        self.calls = []  # (model, reasoning effort, max prompt tokens, max output tokens) of every model call
         self.temp = tempfile.TemporaryDirectory(prefix="afn-writer-")
 
     async def __aenter__(self):
@@ -201,20 +205,28 @@ class Session:
         self.client = CopilotClient(mode="empty", runtime=runtime, github={"token": github_token(), "use_logged_in_user": False})
         await self.client.__aenter__()
         self.session = await self.client.create_session(
-            model=self.model, working_directory=temp, config_directory=temp, enable_config_discovery=False,
+            model=self.model, inference={"reasoning_effort": EFFORT, "context_tier": CONTEXT_TIER},
+            working_directory=temp, config_directory=temp, enable_config_discovery=False,
             tools={"available_tools": []}, skills={"enabled": False}, mcp={"servers": {}},
             permissions={"on_request": lambda *_: PermissionDecisionReject()},
             system_message={"mode": "append", "content": self.system or system_prompt()})
         await self.session.__aenter__()
-        self.session.on(lambda ev: self.models_used.add(ev.data.model) if isinstance(ev.data, AssistantUsageData) else None)
+        self.session.on(lambda ev: self.calls.append((ev.data.model, ev.data.reasoning_effort, ev.data.max_prompt_tokens,
+                                                      ev.data.max_output_tokens)) if isinstance(ev.data, AssistantUsageData) else None)
         return self
 
-    async def ask(self, text, timeout=300, attachments=None):
+    @property
+    def config(self):
+        """What Copilot actually used, e.g. claude-opus-5.5 · effort max · 952k prompt / 48k output tokens."""
+        seen = sorted({f"{m} · effort {e} · {(p or 0) // 1000}k prompt / {(o or 0) // 1000}k output tokens" for m, e, p, o in self.calls})
+        return "; ".join(seen) or "unreported"
+
+    async def ask(self, text, timeout=1200, attachments=None):
         resp = await self.session.send_and_wait(text, timeout=timeout, attachments=attachments)
         if resp is None or not isinstance(resp.data, AssistantMessageData) or not isinstance(resp.data.content, str):
             raise RuntimeError("Copilot returned no text")
-        if self.models_used != {self.model}:
-            raise RuntimeError(f"asked for {self.model} but Copilot answered with {sorted(self.models_used) or 'an unreported model'}")
+        if not self.calls or any(m != self.model or e != EFFORT or (p or 0) < LONG_CONTEXT_MIN for m, e, p, _ in self.calls):
+            raise RuntimeError(f"asked for {self.model} · effort {EFFORT} · 1M context but Copilot used: {self.config}")
         return resp.data.content
 
     async def __aexit__(self, *exc):
@@ -256,7 +268,7 @@ async def review(cand, reply, issue_dir):
     report = None
     for _ in range(2):
         async with Session(system=reviewer_prompt()) as s:
-            raw = await s.ask(json.dumps(payload, ensure_ascii=False), timeout=300, attachments=attachments)
+            raw = await s.ask(json.dumps(payload, ensure_ascii=False), attachments=attachments)
         try:
             report = parse(raw)
         except ValueError:
@@ -277,14 +289,14 @@ async def review(cand, reply, issue_dir):
             continue
         problems.append(f"[{pr.get('kind')}] {pr.get('where')}: \"{pr.get('text')}\": {pr.get('issue')} Fix: {pr.get('fix')}")
     report["dropped"] = dropped
-    report["model"] = sorted(s.models_used)
+    report["model"] = s.config
     return report, problems
 
 
 async def ping():
     async with Session() as s:
-        reply = await s.ask('Reply with exactly {"status": "skip", "reason": "ping"} and nothing else.', timeout=120)
-        return json.dumps({"reply": reply.strip(), "model_requested": s.model, "model_used": sorted(s.models_used)})
+        reply = await s.ask('Reply with exactly {"status": "skip", "reason": "ping"} and nothing else.', timeout=300)
+        return json.dumps({"reply": reply.strip(), "requested": f"{s.model} · effort {EFFORT} · {CONTEXT_TIER}", "used": s.config})
 
 
 def wrap_errors(fn):

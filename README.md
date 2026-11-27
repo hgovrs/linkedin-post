@@ -48,9 +48,10 @@ A failure fails the run (GitHub emails the owner) and the next run, half an hour
   The name is deliberately different from Caramelingo's `ZERNIO_API_KEY`.
 - Copilot uses the workflow token (`copilot-requests: write`); no personal token needed.
   Usage counts toward the owner's Copilot plan.
-- Model: **Claude Opus 5.5** for both the writer and the reviewer (`MODEL` in `writer.py`, or the
-  `AFN_MODEL` environment variable). The log shows which model answered each turn, and a run fails
-  if Copilot answers with any other model.
+- Copilot at its maximum for both the writer and the reviewer: **Claude Opus 5.5**, reasoning effort
+  **max**, **1M-token context** (`long_context`; Copilot reports 952k prompt + 48k output tokens and
+  doesn't allow a larger output). Set in `writer.py` (`AFN_MODEL` / `AFN_EFFORT` override it). Every
+  model call is checked and logged; a run fails if Copilot serves anything else.
 
 Manual runs: Actions → Daily edition → Run workflow → `run`, `dry-run` (no Zernio writes or state
 changes; when nothing is due it rehearses the next edition, so the run's artifact shows the GIF it

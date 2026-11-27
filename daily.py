@@ -233,7 +233,7 @@ async def write_edition(payload, cands, covered, issue_no, today):
         message = json.dumps(payload, ensure_ascii=False)
         for turn in range(1, MAX_TURNS + 1):
             raw = await s.ask(message)
-            print(f"turn {turn}: writer answered with {sorted(s.models_used)}", flush=True)
+            print(f"turn {turn}: writer answered ({s.config})", flush=True)
             try:
                 reply = writer.parse(raw)
             except ValueError as exc:
@@ -255,7 +255,7 @@ async def write_edition(payload, cands, covered, issue_no, today):
                         print(f"turn {turn}: review by {verdict.get('model')} {'passed' if not problems else f'found {len(problems)} problem(s)'}", flush=True)
                         if not problems:
                             return reply, (d, slug, title, report, {"turns": turn, "reviews": len(reviews),
-                                                                    "writer_model": sorted(s.models_used),
+                                                                    "writer_model": s.config,
                                                                     "reviewer_model": verdict.get("model")})
                         problems = [f"review: {p}" for p in problems]
                     shutil.rmtree(d)
