@@ -149,6 +149,13 @@ def post_body(issue_dir, at, account):
     return body, item, media
 
 
+def check(body):
+    """Ask Zernio whether LinkedIn would accept the post, so a rejection fails the run a day early."""
+    result = api("POST", "/tools/validate/post", {k: body[k] for k in ("content", "platforms", "mediaItems")})
+    if not result.get("valid", False):
+        raise ZernioError(f"LinkedIn would reject this post: {json.dumps(result, ensure_ascii=False)[:500]}")
+
+
 def create_post(issue_dir, at, dry_run=False):
     """Schedule one edition. Refuses duplicates (same externalId) and returns the post."""
     body, item, media = post_body(issue_dir, at, account_id())
@@ -159,6 +166,7 @@ def create_post(issue_dir, at, dry_run=False):
         return {"status": "dry-run", "body": {**body, "mediaItems": [{**item, "url": f"(upload of {media.name})"}]}}
     item["url"] = upload(media)
     body["mediaItems"] = [item]
+    check(body)
     created = api("POST", "/posts", body, headers={"Idempotency-Key": f"{body['externalId']}-{at}"})
     return {"status": "scheduled", "post": created.get("post", created)}
 
@@ -173,6 +181,7 @@ def update_post(issue_dir):
     if post.get("status") not in ("scheduled", "draft"):
         raise ZernioError(f"Post {post['_id']} is {post.get('status')}; only scheduled posts can change.")
     item["url"] = upload(media)
+    check({**body, "mediaItems": [item]})
     updated = api("PUT", f"/posts/{post['_id']}", {"content": body["content"], "mediaItems": [item]})
     return updated.get("post", updated)
 

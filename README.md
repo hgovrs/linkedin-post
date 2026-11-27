@@ -23,7 +23,8 @@ The **Daily edition** workflow runs every hour from 06:17 to 20:17 São Paulo ti
    article, renders the GIF and sends layout problems back (up to 4 turns). At most 3 failed
    attempts per day; no qualifying story → skip, checked again after 6 hours.
 3. **render** (no secrets): `gif.py` → 1080×1350 GIF, ≤ 250 frames, < 8 MB.
-4. **schedule** (Zernio key only): uploads the GIF and schedules the post (deduplicated by externalId).
+4. **schedule** (Zernio key only): uploads the GIF, has Zernio validate the post for LinkedIn and
+   schedules it (deduplicated by externalId).
 5. **save** (separate job, no secrets, the only one that can push): commits `state.json` and the edition text.
 
 A failure fails the run (GitHub emails the owner) and the next hourly run tries again.
