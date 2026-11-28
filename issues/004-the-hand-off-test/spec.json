@@ -1,0 +1,91 @@
+{
+  "title": "The Hand-Off Test",
+  "topic": "GitHub Copilot app · Azure DevOps",
+  "hook": {
+    "lines": [
+      "Would Claude",
+      "Code merge",
+      "*this?*"
+    ],
+    "tease": "Now the Copilot app can ==finish Azure DevOps PRs=="
+  },
+  "new": {
+    "headline": "Azure DevOps PRs, *end to end.*",
+    "summary": "Azure DevOps repos now work in the Copilot app, from branch to PR to completion.",
+    "chips": [
+      "Public preview",
+      "Announced Nov 17, 2026",
+      "Experimental opt-in"
+    ],
+    "flow": {
+      "from": {
+        "icon": "i-desktop",
+        "name": "GitHub Copilot app",
+        "sub": "sidebar, Fix, agent merge"
+      },
+      "via": "Microsoft account for Azure DevOps",
+      "to": {
+        "icon": "i-box",
+        "name": "Azure DevOps",
+        "sub": "repos and pull requests"
+      }
+    }
+  },
+  "setup": {
+    "headline": "Connect *Azure DevOps.*",
+    "steps": [
+      "Open **Settings > Experimental** and turn on **Azure DevOps integration**.",
+      "In **Accounts > Add account**, sign in with the Microsoft account you use for Azure DevOps.",
+      "Clone an Azure DevOps test repo where you have an open PR with review comments."
+    ],
+    "note": "Leave agent merge off. This test is read-only."
+  },
+  "try": {
+    "headline": "Try a *status check.*",
+    "chips": [
+      "Azure DevOps"
+    ],
+    "prompt": "Find my open pull request in this Azure DevOps repo.\n\nList each review comment that’s still open, and each check or policy that still blocks completion.\n\nJust report back. Don’t edit code, push, reply or merge."
+  },
+  "compare": {
+    "question": "Wait, but how does Claude Code do it?",
+    "with": "Claude Code",
+    "with_icon": "i-term",
+    "rows": [
+      {
+        "icon": "i-box",
+        "name": "Azure DevOps",
+        "copilot": "Yes",
+        "claude": "Yes",
+        "edge": false
+      },
+      {
+        "icon": "i-doc",
+        "name": "Open PR",
+        "copilot": "Agent",
+        "claude": "Yourself",
+        "edge": true
+      },
+      {
+        "icon": "i-shield",
+        "name": "Merge",
+        "copilot": "Agent merge",
+        "claude": "Yourself",
+        "edge": true
+      }
+    ],
+    "headline": "Same repo. *Fewer hand-offs.*",
+    "takeaway": "**The whole Azure DevOps PR loop stays in one app.** Claude Code’s /ship docs: on Azure DevOps, you open the PR and merge it yourself."
+  },
+  "issue": 4,
+  "source": {
+    "name": "GitHub Changelog",
+    "date": "Nov 17, 2026",
+    "url": "https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases#work-with-azure-devops-repositories-in-the-github-copilot-app"
+  },
+  "compare_source": {
+    "name": "Claude Code docs",
+    "url": "https://code.claude.com/docs/en/ship-command",
+    "checked": "Nov 28, 2026"
+  }
+}

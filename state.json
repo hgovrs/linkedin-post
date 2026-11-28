@@ -39,11 +39,26 @@
       "post_id": "6b0905c25b7163a78060e05b",
       "scheduled_for": "2026-11-28T10:00:00-03:00",
       "content_hash": "e1c2688cacf2c7cf"
+    },
+    {
+      "issue": 4,
+      "slug": "004-the-hand-off-test",
+      "title": "The Hand-Off Test",
+      "status": "scheduled",
+      "format": "gif",
+      "created": "2026-11-28",
+      "source_url": "https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases#work-with-azure-devops-repositories-in-the-github-copilot-app",
+      "compare_url": "https://code.claude.com/docs/en/ship-command",
+      "external_id": "agent-field-notes-004",
+      "post_id": "6b0a4e4ef7491173ee4c0066",
+      "scheduled_for": "2026-11-29T10:00:00-03:00",
+      "content_hash": "412e5d351222654c"
     }
   ],
   "skipped": [],
   "attempts": {
     "2026-11-27": 1,
-    "2026-11-28": 1
+    "2026-11-28": 1,
+    "2026-11-29": 1
   }
 }

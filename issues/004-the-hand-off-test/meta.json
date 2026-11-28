@@ -1,0 +1,108 @@
+{
+  "issue": 4,
+  "slug": "004-the-hand-off-test",
+  "title": "The Hand-Off Test",
+  "document_title": "Agent Field Notes No. 004 — The Hand-Off Test",
+  "format": "gif",
+  "created": "2026-11-28",
+  "source": {
+    "name": "GitHub Changelog",
+    "title": "GitHub Copilot app, Microsoft Ignite releases",
+    "url": "https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases#work-with-azure-devops-repositories-in-the-github-copilot-app",
+    "published": "2026-11-17"
+  },
+  "compare_source": {
+    "name": "Claude Code docs",
+    "url": "https://code.claude.com/docs/en/ship-command",
+    "checked": "2026-11-28",
+    "pages": [
+      "https://code.claude.com/docs/en/desktop",
+      "https://code.claude.com/docs/en/ship-command",
+      "https://code.claude.com/docs/en/platforms"
+    ]
+  },
+  "verified_facts": [
+    {
+      "source": "copilot",
+      "claim": "The GitHub Copilot app now supports Azure DevOps repositories.",
+      "quote": "The GitHub Copilot app now supports your Azure DevOps repositories, your GitHub Enterprise Server instance"
+    },
+    {
+      "source": "copilot",
+      "claim": "An agent can create a branch, make code changes and open a pull request, then see it through to completion without leaving the app.",
+      "quote": "Clone an Azure DevOps repository, ask an agent to create a branch, make code changes, and open a pull request, then see it through to completion without leaving the GitHub Copilot app."
+    },
+    {
+      "source": "copilot",
+      "claim": "Track the PR in the sidebar and click Fix on a review comment.",
+      "quote": "Track its status in the sidebar, click Fix on a review comment to have an agent address it"
+    },
+    {
+      "source": "copilot",
+      "claim": "Agent merge fixes CI failures and completes the PR once Azure DevOps checks and policies pass.",
+      "quote": "turn on agent merge to let an agent fix CI failures and complete the pull request once your Azure DevOps checks and policies pass"
+    },
+    {
+      "source": "copilot",
+      "claim": "Azure DevOps integration is in public preview.",
+      "quote": "Azure DevOps integration is now in public preview."
+    },
+    {
+      "source": "copilot",
+      "claim": "Turn it on under Settings > Experimental.",
+      "quote": "To get started, open Settings > Experimental and turn on Azure DevOps integration"
+    },
+    {
+      "source": "copilot",
+      "claim": "Sign in under Accounts > Add account with the Microsoft account used for Azure DevOps.",
+      "quote": "then go to Accounts > Add account and sign in with the Microsoft account you use for Azure DevOps."
+    },
+    {
+      "source": "copilot",
+      "claim": "Cloud sessions aren't available for Azure DevOps repos.",
+      "quote": "Cloud sessions aren’t available for Azure DevOps repositories."
+    },
+    {
+      "source": "claude",
+      "claim": "On Azure DevOps, Claude can watch your branch for up to seven days.",
+      "quote": "On a host other than GitHub, such as GitLab, Bitbucket, or Azure DevOps, Claude can watch your branch for up to seven days."
+    },
+    {
+      "source": "claude",
+      "claim": "In a terminal session, Claude Code can read the PR's checks and comments.",
+      "quote": "In a terminal session, Claude Code can read details such as your open merge request or pull request, its checks, and its comments."
+    },
+    {
+      "source": "claude",
+      "claim": "/ship and /steward run from the Claude Code CLI in a terminal.",
+      "quote": "Run either command from the Claude Code CLI in a terminal, in your local clone of the repository."
+    },
+    {
+      "source": "claude",
+      "claim": "On Azure DevOps, you push your branch yourself.",
+      "quote": "Commit your change first, then push your branch with an upstream from your shell"
+    },
+    {
+      "source": "claude",
+      "claim": "On Azure DevOps, you open the pull request yourself.",
+      "quote": "On gitlab.com, bitbucket.org, or dev.azure.com, open your merge request or pull request next."
+    },
+    {
+      "source": "claude",
+      "claim": "The watch has no command to reply to comments, re-run a check or read CI logs there.",
+      "quote": "The watch gives Claude no command to reply to comments, re-run a check, or read CI logs there."
+    },
+    {
+      "source": "claude",
+      "claim": "You merge the PR yourself.",
+      "quote": "once the pull request is ready, merge it yourself"
+    }
+  ],
+  "review": {
+    "turns": 1,
+    "research": 1,
+    "reviews": 1,
+    "writer_model": "claude-opus-5.5 · effort max · 952k prompt / 48k output tokens",
+    "reviewer_model": "claude-opus-5.5 · effort max · 952k prompt / 48k output tokens"
+  }
+}

@@ -1,0 +1,19 @@
+Would Claude Code merge your Azure DevOps PR for you? The GitHub Copilot app now can.
+
+Here's the thing. The Copilot app now works with Azure DevOps repos. An agent can branch, change code and open the pull request, then you track it in the sidebar, click Fix on review comments, or turn on agent merge to fix CI failures and complete the PR once your checks and policies pass.
+
+It's in public preview, behind Settings > Experimental, and cloud sessions aren't available for Azure DevOps repos.
+
+Wait, but how does Claude Code do it? Its /ship docs cover Azure DevOps: from the CLI, Claude can watch your branch for up to seven days and read the PR's checks and comments. But you push and open the PR yourself, the watch has no command to reply to comments, re-run a check or read CI logs there, and you merge it yourself.
+
+Honestly? That's the edge: one app, from branch to completed PR. If your team lives in Azure DevOps, that's fewer hand-offs on every pull request.
+
+What I'd try first: on a test repo, ask Copilot to list the open review comments and whatever still blocks your PR. Read-only. No pushes, no merges.
+
+The GIF walks you through it.
+
+#GitHubCopilot #AzureDevOps #DevTools
+
+Sources:
+GitHub Changelog: https://github.blog/changelog/2026-11-17-github-copilot-app-microsoft-ignite-releases#work-with-azure-devops-repositories-in-the-github-copilot-app
+Claude Code docs: https://code.claude.com/docs/en/ship-command
